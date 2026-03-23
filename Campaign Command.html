@@ -107,22 +107,6 @@
     .page { display:none; animation:fadeIn .18s ease; }
     .page.active { display:block; }
 
-    /* ── NOTE CARD ── */
-    .note-card {
-      display:flex; align-items:flex-start; gap:var(--s4);
-      background:linear-gradient(135deg,#EFF4FF,#F0FBFB);
-      border:1px solid #C5D8FF; border-radius:var(--r-lg);
-      padding:var(--s4) var(--s5); margin-bottom:var(--s5);
-    }
-    .note-icon-wrap {
-      width:36px; height:36px; border-radius:var(--r-md);
-      background:var(--blue-lt); display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    }
-    .note-icon-wrap .icon { width:18px; height:18px; stroke-width:1.5; color:var(--blue); }
-    .note-title { font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:13px; color:var(--blue-dk); }
-    .note-body  { font-size:12.5px; color:var(--t2); margin-top:var(--s1); line-height:1.6; }
-    .note-link  { font-size:11.5px; color:var(--blue); margin-top:var(--s2); display:flex; align-items:center; gap:4px; }
-    .note-link .icon { width:12px; height:12px; stroke-width:2; }
 
     /* ── KPI STRIP ── */
     .kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s4); margin-bottom:var(--s5); }
@@ -380,21 +364,6 @@
 
       <!-- ── OVERVIEW ── -->
       <div class="page active" id="page-overview">
-        <div class="note-card">
-          <div class="note-icon-wrap"><i data-lucide="message-circle" class="icon"></i></div>
-          <div>
-            <div class="note-title">A note to xxx — Manager, Review Programs</div>
-            <div class="note-body">
-              Thank you for the context on the team's focus — it gave me a clear starting point to put this together.
-              This is a first-cut illustrative view of what a campaign command center could look like for your program;
-              something that ties together vendor CSAT, CM performance, and campaign health in one place. Hope it's useful as a reference.
-            </div>
-            <a href="https://iamgokulnair.github.io/Passion-projects/Campaign%20Command.html" target="_blank" class="note-link">
-              <i data-lucide="external-link" class="icon"></i>
-              Live version — iamgokulnair.github.io/Passion-projects/Campaign Command.html
-            </a>
-          </div>
-        </div>
         <div class="kpi-strip" id="kpi-strip"></div>
         <div id="alert-zone"></div>
         <div class="ovgrid">
@@ -578,31 +547,31 @@ const D = {
 
   campaigns: [
     // HIGH GROWTH — RVI 82-96%, goal 78-92%, CSAT 4.3-4.8
-    {id:1,  vendor:"Acme CRM",         cat:"CRM",              cm:"CM-A", rvi:96, goal:92, csat:4.8, t1r:3,  st:"g", sl:[70,78,84,88,90,96]},
-    {id:2,  vendor:"DataBridge",       cat:"Analytics",        cm:"CM-D", rvi:91, goal:87, csat:4.6, t1r:4,  st:"g", sl:[65,71,77,82,85,91]},
-    {id:3,  vendor:"SupportHive",      cat:"Customer Support", cm:"CM-D", rvi:89, goal:85, csat:4.7, t1r:4,  st:"g", sl:[68,73,78,81,83,89]},
-    {id:4,  vendor:"ChatOps",          cat:"Communication",    cm:"CM-A", rvi:87, goal:83, csat:4.4, t1r:5,  st:"g", sl:[63,69,73,78,81,87]},
-    {id:5,  vendor:"VaultGuard",       cat:"Security",         cm:"CM-C", rvi:85, goal:80, csat:4.5, t1r:5,  st:"g", sl:[61,67,72,76,79,85]},
-    {id:6,  vendor:"PaySync",          cat:"Fintech",          cm:"CM-B", rvi:82, goal:78, csat:4.3, t1r:6,  st:"g", sl:[59,65,70,74,77,82]},
+    {id:1,  vendor:"Acme CRM",         cat:"CRM",              cm:"Alex R.", rvi:96, goal:92, csat:4.8, t1r:3,  st:"g", sl:[70,78,84,88,90,96]},
+    {id:2,  vendor:"DataBridge",       cat:"Analytics",        cm:"Dana P.", rvi:91, goal:87, csat:4.6, t1r:4,  st:"g", sl:[65,71,77,82,85,91]},
+    {id:3,  vendor:"SupportHive",      cat:"Customer Support", cm:"Dana P.", rvi:89, goal:85, csat:4.7, t1r:4,  st:"g", sl:[68,73,78,81,83,89]},
+    {id:4,  vendor:"ChatOps",          cat:"Communication",    cm:"Alex R.", rvi:87, goal:83, csat:4.4, t1r:5,  st:"g", sl:[63,69,73,78,81,87]},
+    {id:5,  vendor:"VaultGuard",       cat:"Security",         cm:"Casey M.", rvi:85, goal:80, csat:4.5, t1r:5,  st:"g", sl:[61,67,72,76,79,85]},
+    {id:6,  vendor:"PaySync",          cat:"Fintech",          cm:"Brian C.", rvi:82, goal:78, csat:4.3, t1r:6,  st:"g", sl:[59,65,70,74,77,82]},
     // MEDIUM — RVI 58-74%, goal 54-70%, CSAT 3.6-4.0
-    {id:7,  vendor:"DevOps Bridge",    cat:"DevOps",           cm:"CM-C", rvi:74, goal:70, csat:4.0, t1r:9,  st:"g", sl:[56,61,64,67,69,74]},
-    {id:8,  vendor:"InvoiceIQ",        cat:"Finance",          cm:"CM-B", rvi:68, goal:64, csat:3.9, t1r:11, st:"a", sl:[60,62,63,64,65,68]},
-    {id:9,  vendor:"MarketPulse",      cat:"Marketing Auto",   cm:"CM-C", rvi:63, goal:59, csat:3.8, t1r:12, st:"a", sl:[58,59,60,60,61,63]},
-    {id:10, vendor:"TeamFlow",         cat:"Collaboration",    cm:"CM-E", rvi:61, goal:57, csat:3.7, t1r:13, st:"a", sl:[57,58,58,59,59,61]},
-    {id:11, vendor:"BuildBot",         cat:"CI/CD",            cm:"CM-A", rvi:58, goal:54, csat:3.6, t1r:14, st:"a", sl:[55,56,56,57,57,58]},
+    {id:7,  vendor:"DevOps Bridge",    cat:"DevOps",           cm:"Casey M.", rvi:74, goal:70, csat:4.0, t1r:9,  st:"g", sl:[56,61,64,67,69,74]},
+    {id:8,  vendor:"InvoiceIQ",        cat:"Finance",          cm:"Brian C.", rvi:68, goal:64, csat:3.9, t1r:11, st:"a", sl:[60,62,63,64,65,68]},
+    {id:9,  vendor:"MarketPulse",      cat:"Marketing Auto",   cm:"Casey M.", rvi:63, goal:59, csat:3.8, t1r:12, st:"a", sl:[58,59,60,60,61,63]},
+    {id:10, vendor:"TeamFlow",         cat:"Collaboration",    cm:"Ethan S.", rvi:61, goal:57, csat:3.7, t1r:13, st:"a", sl:[57,58,58,59,59,61]},
+    {id:11, vendor:"BuildBot",         cat:"CI/CD",            cm:"Alex R.", rvi:58, goal:54, csat:3.6, t1r:14, st:"a", sl:[55,56,56,57,57,58]},
     // LOW GROWTH / CRITICAL — RVI 22-42%, goal 18-38%, CSAT 2.4-3.0
-    {id:12, vendor:"HRFlow",           cat:"HR Tech",          cm:"CM-B", rvi:42, goal:38, csat:3.0, t1r:19, st:"r", sl:[54,49,46,43,40,38]},
-    {id:13, vendor:"CloudStack Pro",   cat:"Cloud Infra",      cm:"CM-B", rvi:37, goal:33, csat:2.7, t1r:21, st:"r", sl:[51,47,44,39,36,33]},
-    {id:14, vendor:"ProjectFlow",      cat:"Proj. Management", cm:"CM-E", rvi:32, goal:28, csat:2.6, t1r:23, st:"r", sl:[49,45,42,37,32,28]},
-    {id:15, vendor:"LegacyERP",        cat:"ERP",              cm:"CM-E", rvi:24, goal:20, csat:2.4, t1r:25, st:"r", sl:[47,43,39,32,26,20]},
+    {id:12, vendor:"HRFlow",           cat:"HR Tech",          cm:"Brian C.", rvi:42, goal:38, csat:3.0, t1r:19, st:"r", sl:[54,49,46,43,40,38]},
+    {id:13, vendor:"CloudStack Pro",   cat:"Cloud Infra",      cm:"Brian C.", rvi:37, goal:33, csat:2.7, t1r:21, st:"r", sl:[51,47,44,39,36,33]},
+    {id:14, vendor:"ProjectFlow",      cat:"Proj. Management", cm:"Ethan S.", rvi:32, goal:28, csat:2.6, t1r:23, st:"r", sl:[49,45,42,37,32,28]},
+    {id:15, vendor:"LegacyERP",        cat:"ERP",              cm:"Ethan S.", rvi:24, goal:20, csat:2.4, t1r:25, st:"r", sl:[47,43,39,32,26,20]},
   ],
 
   cms: [
-    {name:"CM-A", init:"A", cb:"#D0E2FF", ct:"#0F62FE", n:5, comp:79, csat:4.5, gwc:4.22, risk:0, trend:"up"},
-    {name:"CM-B", init:"B", cb:"#FCF4D6", ct:"#8E6A00", n:5, comp:62, csat:3.6, gwc:2.97, risk:2, trend:"down"},
-    {name:"CM-C", init:"C", cb:"#DEFBE6", ct:"#0E6027", n:4, comp:74, csat:4.1, gwc:3.89, risk:0, trend:"up"},
-    {name:"CM-D", init:"D", cb:"#9EF0F0", ct:"#007D79", n:4, comp:77, csat:4.4, gwc:4.14, risk:0, trend:"up"},
-    {name:"CM-E", init:"E", cb:"#FFF1F1", ct:"#A2191F", n:6, comp:53, csat:3.1, gwc:2.60, risk:2, trend:"down"},
+    {name:"Alex R.",  init:"AR", cb:"#D0E2FF", ct:"#0F62FE", n:5, comp:79, csat:4.5, gwc:4.22, risk:0, trend:"up"},
+    {name:"Brian C.", init:"BC", cb:"#FCF4D6", ct:"#8E6A00", n:5, comp:62, csat:3.6, gwc:2.97, risk:2, trend:"down"},
+    {name:"Casey M.", init:"CY", cb:"#DEFBE6", ct:"#0E6027", n:4, comp:74, csat:4.1, gwc:3.89, risk:0, trend:"up"},
+    {name:"Dana P.",  init:"DP", cb:"#9EF0F0", ct:"#007D79", n:4, comp:77, csat:4.4, gwc:4.14, risk:0, trend:"up"},
+    {name:"Ethan S.", init:"ES", cb:"#FFF1F1", ct:"#A2191F", n:6, comp:53, csat:3.1, gwc:2.60, risk:2, trend:"down"},
   ],
 
   trends: {
@@ -641,20 +610,20 @@ const D = {
   ],
 
   csatVendors:[
-    {v:"Acme CRM",       cat:"CRM",       cm:"CM-A", score:4.8, resp:42, rspns:4.9, guide:4.8, dlvr:4.7, renew:"Yes"},
-    {v:"SupportHive",    cat:"Support",   cm:"CM-D", score:4.7, resp:35, rspns:4.8, guide:4.7, dlvr:4.6, renew:"Yes"},
-    {v:"DataBridge",     cat:"Analytics", cm:"CM-D", score:4.6, resp:38, rspns:4.7, guide:4.6, dlvr:4.5, renew:"Yes"},
-    {v:"VaultGuard",     cat:"Security",  cm:"CM-C", score:4.5, resp:29, rspns:4.6, guide:4.5, dlvr:4.4, renew:"Yes"},
-    {v:"ChatOps",        cat:"Comm.",     cm:"CM-A", score:4.4, resp:31, rspns:4.5, guide:4.3, dlvr:4.4, renew:"Yes"},
-    {v:"PaySync",        cat:"Fintech",   cm:"CM-B", score:4.3, resp:28, rspns:4.3, guide:4.2, dlvr:4.3, renew:"Likely"},
-    {v:"DevOps Bridge",  cat:"DevOps",    cm:"CM-C", score:4.0, resp:24, rspns:4.1, guide:4.0, dlvr:3.9, renew:"Likely"},
-    {v:"InvoiceIQ",      cat:"Finance",   cm:"CM-B", score:3.9, resp:22, rspns:3.8, guide:3.9, dlvr:3.9, renew:"Likely"},
-    {v:"MarketPulse",    cat:"Mktg Auto", cm:"CM-C", score:3.5, resp:20, rspns:3.4, guide:3.5, dlvr:3.6, renew:"Unsure"},
-    {v:"TeamFlow",       cat:"Collab.",   cm:"CM-E", score:3.7, resp:19, rspns:3.6, guide:3.7, dlvr:3.7, renew:"Unsure"},
-    {v:"HRFlow",         cat:"HR Tech",   cm:"CM-B", score:3.0, resp:15, rspns:2.8, guide:3.0, dlvr:3.1, renew:"Unlikely"},
-    {v:"CloudStack Pro", cat:"Cloud",     cm:"CM-B", score:2.7, resp:12, rspns:2.6, guide:2.7, dlvr:2.7, renew:"Unlikely"},
-    {v:"ProjectFlow",    cat:"Proj Mgmt", cm:"CM-E", score:2.6, resp:11, rspns:2.5, guide:2.6, dlvr:2.6, renew:"Unlikely"},
-    {v:"LegacyERP",      cat:"ERP",       cm:"CM-E", score:2.4, resp:8,  rspns:2.3, guide:2.4, dlvr:2.4, renew:"No"},
+    {v:"Acme CRM",       cat:"CRM",       cm:"Alex R.", score:4.8, resp:42, rspns:4.9, guide:4.8, dlvr:4.7, renew:"Yes"},
+    {v:"SupportHive",    cat:"Support",   cm:"Dana P.", score:4.7, resp:35, rspns:4.8, guide:4.7, dlvr:4.6, renew:"Yes"},
+    {v:"DataBridge",     cat:"Analytics", cm:"Dana P.", score:4.6, resp:38, rspns:4.7, guide:4.6, dlvr:4.5, renew:"Yes"},
+    {v:"VaultGuard",     cat:"Security",  cm:"Casey M.", score:4.5, resp:29, rspns:4.6, guide:4.5, dlvr:4.4, renew:"Yes"},
+    {v:"ChatOps",        cat:"Comm.",     cm:"Alex R.", score:4.4, resp:31, rspns:4.5, guide:4.3, dlvr:4.4, renew:"Yes"},
+    {v:"PaySync",        cat:"Fintech",   cm:"Brian C.", score:4.3, resp:28, rspns:4.3, guide:4.2, dlvr:4.3, renew:"Likely"},
+    {v:"DevOps Bridge",  cat:"DevOps",    cm:"Casey M.", score:4.0, resp:24, rspns:4.1, guide:4.0, dlvr:3.9, renew:"Likely"},
+    {v:"InvoiceIQ",      cat:"Finance",   cm:"Brian C.", score:3.9, resp:22, rspns:3.8, guide:3.9, dlvr:3.9, renew:"Likely"},
+    {v:"MarketPulse",    cat:"Mktg Auto", cm:"Casey M.", score:3.5, resp:20, rspns:3.4, guide:3.5, dlvr:3.6, renew:"Unsure"},
+    {v:"TeamFlow",       cat:"Collab.",   cm:"Ethan S.", score:3.7, resp:19, rspns:3.6, guide:3.7, dlvr:3.7, renew:"Unsure"},
+    {v:"HRFlow",         cat:"HR Tech",   cm:"Brian C.", score:3.0, resp:15, rspns:2.8, guide:3.0, dlvr:3.1, renew:"Unlikely"},
+    {v:"CloudStack Pro", cat:"Cloud",     cm:"Brian C.", score:2.7, resp:12, rspns:2.6, guide:2.7, dlvr:2.7, renew:"Unlikely"},
+    {v:"ProjectFlow",    cat:"Proj Mgmt", cm:"Ethan S.", score:2.6, resp:11, rspns:2.5, guide:2.6, dlvr:2.6, renew:"Unlikely"},
+    {v:"LegacyERP",      cat:"ERP",       cm:"Ethan S.", score:2.4, resp:8,  rspns:2.3, guide:2.4, dlvr:2.4, renew:"No"},
   ]
 };
 
@@ -735,7 +704,7 @@ function renderAlerts() {
       <i data-lucide="alert-octagon"></i>
       <div>
         <div class="alert-title">${red.length} campaigns at critical churn threshold — low velocity, below-target attainment, weak CSAT</div>
-        <div class="alert-body">CM-B and CM-E appear across all critical campaigns. Treat this as a coaching escalation, not a campaign-level fix.</div>
+        <div class="alert-body">Brian C. and Ethan S. appear across all critical campaigns. Treat this as a coaching escalation, not a campaign-level fix.</div>
         <div class="alert-chips">${red.map(c=>`<span class="a-chip">${c.vendor} (${c.cm})</span>`).join('')}</div>
       </div>
     </div>`;
@@ -775,10 +744,10 @@ function renderOverview() {
 
   const signals=[
     {lbl:"Campaigns on track",       val:`${D.campaigns.filter(c=>c.st==='g').length}/${D.campaigns.length}`, good:true},
-    {lbl:"Top performing CM",        val:"CM-D (GW-CSAT 4.14)",  good:true},
-    {lbl:"Needs coaching now",       val:"CM-E (GW-CSAT 2.60)",  good:false},
-    {lbl:"Fastest avg first review", val:"CM-A (4.5 day avg)",   good:true},
-    {lbl:"Slowest first review",     val:"CM-E (24 day avg)",    good:false},
+    {lbl:"Top performing CM",        val:"Dana P. (GW-CSAT 4.14)",  good:true},
+    {lbl:"Needs coaching now",       val:"Ethan S. (GW-CSAT 2.60)", good:false},
+    {lbl:"Fastest avg first review", val:"Alex R. (4.5 day avg)",   good:true},
+    {lbl:"Slowest first review",     val:"Ethan S. (24 day avg)",   good:false},
     {lbl:"Portfolio avg RVI",        val:"68%",                  good:null},
     {lbl:"Reviews target (Mar)",     val:"1,400 → 1,347 actual", good:false},
     {lbl:"CSAT vs target (≥ 4.0)",   val:"4.0 — on threshold",   good:null},
@@ -820,7 +789,7 @@ function renderCampaigns(filter) {
       <td><div style="font-weight:600;">${c.vendor}</div><div style="font-size:11px;color:var(--t3);">${c.cat}</div></td>
       <td>
         <div class="cmw">
-          <div class="cma" style="background:${cmOf(c.cm).cb||'#F4F4F4'};color:${cmOf(c.cm).ct||'#525252'};">${c.cm.split('-')[1]||'?'}</div>
+          <div class="cma" style="background:${cmOf(c.cm).cb||'#F4F4F4'};color:${cmOf(c.cm).ct||'#525252'};">${cmOf(c.cm).init||'?'}</div>
           <span>${c.cm}</span>
         </div>
       </td>
@@ -1046,7 +1015,7 @@ function renderCSAT() {
       <td><span class="badge bn">${v.cat}</span></td>
       <td>
         <div class="cmw">
-          <div class="cma" style="background:${cmOf(v.cm).cb||'#F4F4F4'};color:${cmOf(v.cm).ct||'#525252'};">${v.cm.split('-')[1]||'?'}</div>
+          <div class="cma" style="background:${cmOf(v.cm).cb||'#F4F4F4'};color:${cmOf(v.cm).ct||'#525252'};">${cmOf(v.cm).init||'?'}</div>
           ${v.cm}
         </div>
       </td>
