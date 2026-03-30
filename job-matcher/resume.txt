@@ -1,0 +1,73 @@
+================================================================
+  REPLACE EVERYTHING IN THIS FILE WITH YOUR ACTUAL RESUME
+  See README.md -> "Step 1: Add Your Resume" for instructions
+================================================================
+
+YOUR FULL NAME
+your.email@example.com | +91-XXXXXXXXXX | LinkedIn: linkedin.com/in/yourname
+Bangalore, Karnataka, India
+
+----------------------------------------------------------------
+PROFESSIONAL SUMMARY
+----------------------------------------------------------------
+[Write 3-4 sentences about who you are professionally.
+Example: Results-driven Senior Operations Manager with 8+ years of
+experience leading cross-functional teams and driving operational
+efficiency. Proven track record in program management, stakeholder
+alignment, and delivering large-scale projects on time and within
+budget. Strong background in process improvement, data-driven
+decision making, and building high-performing teams.]
+
+----------------------------------------------------------------
+CORE SKILLS
+----------------------------------------------------------------
+[List your skills separated by commas or bullet points. Be specific!
+The more keywords here, the better your ATS score will be.
+
+Example:
+Program Management | Operations Management | Business Strategy
+Stakeholder Management | Cross-functional Leadership | P&L Management
+Process Improvement | Six Sigma | Agile/Scrum | JIRA | Confluence
+Data Analysis | Excel | Power BI | SQL | Vendor Management
+Budget Planning | Risk Management | Change Management | OKRs / KPIs]
+
+----------------------------------------------------------------
+PROFESSIONAL EXPERIENCE
+----------------------------------------------------------------
+
+[Job Title] — [Company Name]                    [Month Year – Month Year]
+[City, India]
+
+- [Quantified achievement: e.g., Led a team of 25 across 3 cities,
+  reducing operational costs by 18% through process automation]
+- [Another achievement with numbers]
+- [Another achievement]
+- [Another achievement]
+
+[Job Title] — [Company Name]                    [Month Year – Month Year]
+[City, India]
+
+- [Achievement]
+- [Achievement]
+- [Achievement]
+
+[Add more roles as needed]
+
+----------------------------------------------------------------
+EDUCATION
+----------------------------------------------------------------
+
+[Degree] in [Subject]
+[University Name], [City]                       [Year of Graduation]
+
+[Any relevant certifications, e.g.:]
+- PMP (Project Management Professional) — PMI, [Year]
+- Six Sigma Green Belt — [Issuing Body], [Year]
+- [Any other certifications]
+
+----------------------------------------------------------------
+ADDITIONAL
+----------------------------------------------------------------
+
+Languages: [e.g., English (Fluent), Hindi (Native), Kannada (Working)]
+Awards: [Any recognitions, e.g., "Employee of the Year 2022 - Company X"]
