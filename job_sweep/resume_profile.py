@@ -78,3 +78,7 @@ TARGET_QUERIES = [
 # Hard thresholds for verdict classification
 SURE_SHOT_THRESHOLD = 75
 STRONG_MATCH_THRESHOLD = 60
+
+# Freshness window — jobs posted beyond this are outside the active hiring zone
+# (recruiter/HM engagement drops sharply after 3 weeks)
+MAX_DAYS_OLD = 21
