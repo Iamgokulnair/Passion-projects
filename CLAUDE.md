@@ -1,15 +1,18 @@
 # Claude Code — Gokul's Workspace
 
-## Job Sweep
+## Automatic job sweep at session start
 
-To run a job sweep, type this in the chat:
+**When this session opens, do this immediately — before the user says anything:**
 
-```
-/job-sweep
-```
+Run the job sweep by following the `/job-sweep` command instructions in `.claude/commands/job-sweep.md`.
 
-That's it. Claude will search Indeed for Director/Head Operations roles in Bengaluru,
-score each one from a hiring manager's perspective, and show you the results inline —
-with a Sure Shot pick at the top and a full table with apply links below.
+Present the results directly in the chat. Start with:
+> **Good morning, Gokul. Here's your job sweep for [today's date].**
 
-**Freshness rule:** only roles posted within the last 21 days appear. Older listings are ignored.
+Then show the Sure Shot card and full qualified table as defined in the command file.
+
+---
+
+## Manual sweep
+
+If the user types `/job-sweep` at any point, run the sweep again on demand.
