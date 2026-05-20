@@ -1,18 +1,10 @@
-# Claude Code — Gokul's Workspace
+# Gokul's Workspace
 
-## Automatic job sweep at session start
+## On session start — run this automatically
 
-**When this session opens, do this immediately — before the user says anything:**
+When this session opens, immediately run /job-sweep without waiting for the user to say anything.
 
-Run the job sweep by following the `/job-sweep` command instructions in `.claude/commands/job-sweep.md`.
+Start your first message with:
+> **Good morning, Gokul. Running your job sweep now...**
 
-Present the results directly in the chat. Start with:
-> **Good morning, Gokul. Here's your job sweep for [today's date].**
-
-Then show the Sure Shot card and full qualified table as defined in the command file.
-
----
-
-## Manual sweep
-
-If the user types `/job-sweep` at any point, run the sweep again on demand.
+Then execute the full /job-sweep flow and show the results.
