@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jash Engineering — Sourcing Recommendation | MBB-style</title>
+<style>
+  /* ============================================================
+     A&M DARK THEME — real Alvarez & Marsal brand palette:
+     #01244a dark blue · #0085ca bright blue · #5c8bb4 medium blue
+     #dee7f0 light blue-gray · #646464 gray. Full dark canvas.
+     Times New Roman for TITLES ONLY. Arial for everything else.
+     Canvas: 1280x720px = 16:9 = 13.333"x7.5" @96dpi.
+     ============================================================ */
+  :root{
+    --bg:#01244a; --bg-deep:#001830; --panel:#0d3a63; --panel-hi:#0f4577;
+    --line:#2a4d75; --white:#FFFFFF;
+    --text:#dee7f0; --text-dim:#93aec8; --text-faint:#7086a0;
+    --accent:#0085ca; --accent-text:#5fc2f0; --accent2:#5c8bb4;
+    --red:#e2564b; --green:#34b56a;
+    /* type scale — Arial (all body/data) */
+    --t-body:12px; --t-td:12px; --t-th:10px; --t-caption:9px; --t-kicker:10px;
+    --t-bignum:28px; --t-eyebrow:9px;
+    /* type scale — Times New Roman (titles only) */
+    --t-slidetitle:20px; --t-covertitle:34px; --t-dividertitle:30px; --t-governing:15.5px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:#00101f; font-family:Arial,Helvetica,sans-serif; color:var(--text); padding:24px 0;}
+  .deck{display:flex; flex-direction:column; align-items:center; gap:24px;}
+  .slide{width:1280px; height:720px; background:var(--bg); position:relative; overflow:hidden; flex-shrink:0;}
+  .serif{font-family:"Times New Roman", Times, serif;}
+
+  .topbar{background:var(--bg-deep); height:96px; padding:18px 48px 0 48px; border-bottom:1px solid var(--line);}
+  .eyebrow{color:var(--text-dim); font-size:var(--t-eyebrow); letter-spacing:1.5px; text-transform:uppercase; font-weight:bold;}
+  .title{color:var(--white); font-size:var(--t-slidetitle); font-weight:bold; line-height:1.28; margin-top:4px; max-width:1180px;}
+  .title b{color:var(--accent-text);}
+  .body{padding:22px 48px 0 48px; height:552px; position:relative; display:flex; flex-direction:column; gap:14px;}
+  .footer{position:absolute; bottom:0; left:0; right:0; height:64px; border-top:1px solid var(--line);
+          padding:9px 48px; font-size:var(--t-caption); color:var(--text-faint); line-height:1.4;}
+  .footer b{color:var(--accent-text);}
+  .pagenum{position:absolute; bottom:9px; right:16px; font-size:var(--t-caption); color:var(--text-faint);}
+
+  table{border-collapse:collapse; width:100%;}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top; color:var(--text);}
+  th{background:var(--bg-deep); color:var(--white); font-size:var(--t-th); text-transform:uppercase; letter-spacing:.4px; font-weight:bold;}
+  td{font-size:var(--t-td);}
+  .num{font-weight:bold; color:var(--white);}
+  .pos{color:var(--green);} .neg{color:var(--red);}
+
+  .callout{background:var(--panel); border-left:4px solid var(--accent2); padding:13px 17px; font-size:var(--t-body); line-height:1.55; color:var(--text);}
+  .callout.gold{border-left-color:var(--accent); background:var(--panel-hi);}
+  .kicker{font-size:var(--t-kicker); font-weight:bold; color:var(--accent-text); text-transform:uppercase; letter-spacing:.5px;}
+  .illus{display:inline-block; background:var(--panel-hi); color:var(--accent-text); font-size:8px; font-weight:bold;
+         letter-spacing:.5px; padding:2px 5px; border:1px solid var(--line);}
+
+  .governing{background:var(--bg-deep); border:2px solid var(--accent); padding:18px 26px; position:relative;}
+  .governing .tag{position:absolute; top:-11px; left:24px; background:var(--accent); color:var(--white);
+    font-size:9px; font-weight:bold; letter-spacing:1px; padding:3px 10px;}
+  .governing p{color:var(--white); font-size:var(--t-governing); line-height:1.5; font-style:italic;}
+  .governing p b{color:var(--accent-text); font-style:normal;}
+
+  .sowhat{background:var(--panel-hi); border:1px solid var(--accent); border-left-width:4px; padding:9px 14px; font-size:var(--t-body); line-height:1.5; color:var(--text);}
+  .sowhat b{font-size:8px; letter-spacing:.4px; text-transform:uppercase; color:var(--accent-text); margin-right:6px;}
+
+  .bignum{font-size:var(--t-bignum); font-weight:bold; color:var(--accent-text); line-height:1;}
+  .bignum.pos{color:var(--green);}
+  .caption{font-size:var(--t-caption); color:var(--text-faint); margin-top:3px; line-height:1.4;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;}
+  .card{background:var(--panel); border:1px solid var(--line); padding:13px 16px;}
+  .card.gold{background:var(--panel-hi); border-color:var(--accent);}
+  .card h4{font-size:var(--t-kicker); color:var(--accent-text); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; font-weight:bold;}
+  .card p{font-size:var(--t-body); line-height:1.5; color:var(--text);}
+  ul{padding-left:16px; font-size:var(--t-body); line-height:1.55; color:var(--text);}
+
+  .cover{background:var(--bg-deep); height:720px; padding:82px 64px 0 64px; position:relative;}
+  .cover .ctitle{color:var(--white); font-size:var(--t-covertitle); font-weight:bold; line-height:1.28; max-width:1080px;}
+  .cover .csub{color:var(--accent-text); font-size:16px; margin-top:20px; font-style:italic;}
+  .cover .cmeta{color:var(--text-dim); font-size:12.5px; line-height:2.0; margin-top:44px;}
+  .cover .cdisc{position:absolute; bottom:56px; left:64px; right:64px; border-top:1px solid var(--line);
+                padding-top:14px; color:var(--text-faint); font-size:10.5px; line-height:1.6;}
+
+  .divider{background:var(--bg-deep); height:720px; padding:280px 64px 0 64px;}
+  .divider .dnum{color:var(--accent-text); font-size:13px; font-weight:bold; letter-spacing:3px;}
+  .divider .dtitle{color:var(--white); font-size:var(--t-dividertitle); font-weight:bold; margin-top:12px;}
+  .divider .dsub{color:var(--text-dim); font-size:13px; margin-top:14px; max-width:820px; line-height:1.6;}
+
+  .chart-wrap{background:var(--panel); border:1px solid var(--line); padding:14px 18px; flex:1; display:flex; flex-direction:column;}
+  .chart-title{font-size:var(--t-kicker); font-weight:bold; color:var(--accent-text); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;}
+  .chart-svg{flex:1; width:100%;}
+  svg text{font-family:Arial,Helvetica,sans-serif;}
+
+  .badge-row{display:flex; gap:14px;}
+  .badge{flex:1; border:1px solid var(--line); background:var(--panel); padding:12px 14px; text-align:center;}
+  .badge.win{background:var(--panel-hi); border-color:var(--accent);}
+  .badge .bmark{font-size:20px; font-weight:bold; margin-bottom:4px; color:var(--text);}
+  .badge.win .bmark{color:var(--accent-text);}
+  .badge .blabel{font-size:11.5px; font-weight:bold; color:var(--white);}
+  .badge .bsub{font-size:10px; color:var(--text-dim); margin-top:3px;}
+
+  .recap{display:flex; gap:14px; align-items:stretch;}
+  .recap .rnode{flex:1; border:1px solid var(--line); background:var(--panel); padding:10px 12px; position:relative;}
+  .recap .rnode.here{background:var(--panel-hi); border-color:var(--accent);}
+  .recap .rnum{width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--white);
+    font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:6px;}
+  .recap .rnode.here .rnum{background:var(--accent-text); color:var(--bg-deep);}
+  .recap .rtitle{font-size:11px; font-weight:bold; color:var(--white);}
+  .recap .rsub{font-size:9.5px; color:var(--text-dim); margin-top:2px;}
+
+  /* ============================================================
+     MOTION — scroll-snap between slides + staggered entrance.
+     transform/opacity only (no layout thrash), 300-450ms ease-out,
+     ~45ms stagger per element, fully respects reduced-motion.
+     ============================================================ */
+  html{scroll-behavior:smooth;}
+  .deck{scroll-snap-type:y proximity; scroll-padding:24px 0;}
+  .slide{scroll-snap-align:start; scroll-snap-stop:always;}
+  .reveal{
+    opacity:0; transform:translateY(14px);
+    transition:opacity .42s cubic-bezier(.16,1,.3,1), transform .42s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  .reveal.in{opacity:1; transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .deck{scroll-snap-type:none;}
+    .reveal{transition:none; opacity:1; transform:none;}
+  }
+
+  /* ============================================================
+     EDITORIAL LAYOUT GRAMMAR — slides 5-11. Same palette/fonts,
+     deliberately varied composition so each slide reads as
+     designed, not templated. Same colour tokens as everywhere else.
+     ============================================================ */
+  .split{display:grid; grid-template-columns:1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden;}
+  .split .pane{padding:18px 22px; display:flex; flex-direction:column; justify-content:center; gap:8px;}
+  .split .pane.fail{background:linear-gradient(180deg, rgba(226,86,75,.10), transparent 70%); border-right:1px solid var(--line);}
+  .split .pane.win{background:linear-gradient(180deg, rgba(0,133,202,.14), transparent 70%);}
+  .pane-label{font-size:10.5px; font-weight:bold; text-transform:uppercase; letter-spacing:1.2px;}
+  .pane-label.fail{color:var(--red);}
+  .pane-label.win{color:var(--accent-text);}
+  .pane-mark{font-size:30px; font-weight:bold; line-height:1;}
+  .pane-mark.fail{color:var(--red);}
+  .pane-mark.win{color:var(--accent-text);}
+  .pane p{font-size:11.5px; line-height:1.55; color:var(--text);}
+
+  .specs{display:grid; grid-template-columns:1fr 1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden;}
+  .specs .spec{padding:14px 16px; display:flex; flex-direction:column; gap:9px; border-right:1px solid var(--line);}
+  .specs .spec:last-child{border-right:none;}
+  .specs .spec.win{background:var(--panel-hi);}
+  .spec-name{font-family:"Times New Roman",Times,serif; font-size:16px; font-weight:bold; color:var(--white);
+    padding-bottom:8px; border-bottom:1px solid var(--line);}
+  .spec-name.win{color:var(--accent-text);}
+  .spec-row .k{display:block; color:var(--text-faint); font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px;}
+  .spec-row .v{font-size:11px; line-height:1.4; color:var(--text);}
+  .spec-row .v.hi{color:var(--accent-text); font-weight:bold;}
+  .spec-row .v.win{color:var(--white); font-weight:bold;}
+
+  .testband{display:flex; align-items:stretch; border:1px solid var(--line); border-top:none; flex:1;}
+  .testband:first-child{border-top:1px solid var(--line);}
+  .testband .tword{width:130px; flex-shrink:0; display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:"Times New Roman",Times,serif; font-size:24px; font-weight:bold; color:var(--accent-text);
+    background:var(--bg-deep); border-right:2px solid var(--accent); padding:8px;}
+  .testband .tbody{flex:1; padding:14px 24px; display:flex; align-items:center; gap:28px;}
+  .testband .tq{flex:0 0 34%; font-size:11.5px; color:var(--text-dim); line-height:1.5;}
+  .testband .ta{flex:1; font-size:12.5px; color:var(--text); line-height:1.5;}
+
+  .rail{display:grid; grid-template-columns:230px 1fr; flex:1; gap:0;}
+  .rail .rail-side{border-right:1px solid var(--line); padding-right:20px; display:flex; flex-direction:column; justify-content:center; gap:10px;}
+  .rail .rail-main{padding-left:22px; display:flex; flex-direction:column; justify-content:center; gap:12px;}
+
+  .bignum-anchor{font-family:"Times New Roman",Times,serif; font-weight:bold; color:var(--accent);
+    opacity:.16; line-height:.85; position:absolute; pointer-events:none; user-select:none;}
+
+  /* ============================================================
+     COMPONENT LIBRARY v2 — chips, icons, gauge, donut, checklist,
+     delta-bar, mini-timeline, stepper. Reuses existing tokens only.
+     Hover polish gated to fine-pointer devices (inert on print/PDF).
+     ============================================================ */
+  @media (hover:hover) and (pointer:fine){
+    .card, .spec, .chip, .badge, table tr{
+      transition:transform 160ms cubic-bezier(.23,1,.32,1), box-shadow 160ms ease-out, background 160ms ease-out;
+    }
+    .card:hover, .spec:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,10,25,.38);}
+    .chip:hover{transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,10,25,.35);}
+    table tr:not(:first-child):hover td{background:rgba(0,133,202,.10);}
+  }
+
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{display:inline-flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line);
+    padding:6px 11px; font-size:10.5px; font-weight:bold; color:var(--text); white-space:nowrap;}
+  .chip.gold{background:var(--panel-hi); border-color:var(--accent); color:var(--accent-text);}
+  .chip .n{color:var(--accent-text); font-weight:bold;}
+  .chip.gold .n{color:var(--white);}
+
+  .ic{display:inline-block; vertical-align:-3px; width:14px; height:14px; flex-shrink:0;}
+  .ic path,.ic circle,.ic rect,.ic line{stroke:var(--accent-text); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+  .ic.solid path,.ic.solid circle{fill:var(--accent-text); stroke:none;}
+
+  .bignum-tile{display:flex; flex-direction:column; gap:2px;}
+  .bignum-tile .bignum{font-size:22px;}
+
+  .checklist{display:grid; grid-template-columns:1fr 1fr; gap:9px 20px;}
+  .check-item{display:flex; align-items:flex-start; gap:8px; font-size:12px; line-height:1.4; color:var(--text);}
+  .check-item .ic{margin-top:2px;}
+  .check-item b{color:var(--white);}
+
+  .gauge{position:relative; height:26px; background:var(--bg-deep); border:1px solid var(--line); margin:4px 0;}
+  .gauge .zone{position:absolute; top:0; bottom:0;}
+  .gauge .zone.fail{background:rgba(226,86,75,.30); left:0;}
+  .gauge .zone.mid{background:rgba(92,139,180,.30);}
+  .gauge .zone.win{background:rgba(52,181,106,.30);}
+  .gauge .marker{position:absolute; top:-5px; bottom:-5px; width:3px; background:var(--accent-text);
+    box-shadow:0 0 6px var(--accent-text);}
+  .gauge .marker .mlabel{position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:9px;
+    font-weight:bold; color:var(--accent-text); white-space:nowrap;}
+  .gauge-scale{display:flex; justify-content:space-between; font-size:8.5px; color:var(--text-faint); margin-top:2px;}
+
+  .delta-bar{display:flex; flex-direction:column; gap:3px; margin-top:6px;}
+  .delta-bar .drow{display:flex; align-items:center; gap:7px;}
+  .delta-bar .dlabel{width:52px; font-size:9px; color:var(--text-faint); flex-shrink:0;}
+  .delta-bar .dtrack{flex:1; height:11px; background:var(--bg-deep); position:relative;}
+  .delta-bar .dfill{height:100%;}
+  .delta-bar .dval{width:56px; font-size:9.5px; font-weight:bold; text-align:right; flex-shrink:0;}
+
+  .mini-donut-wrap{display:flex; align-items:center; gap:16px;}
+  .mini-donut-legend{display:flex; flex-direction:column; gap:5px;}
+  .mini-donut-legend .lrow{display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--text);}
+  .mini-donut-legend .swatch{width:9px; height:9px; flex-shrink:0; display:inline-block;}
+  .mini-donut-legend .lval{margin-left:auto; font-weight:bold; color:var(--white);}
+
+  .dot-timeline{display:flex; align-items:center; gap:0;}
+  .dot-timeline .dt-item{display:flex; flex-direction:column; align-items:center; flex:1; position:relative;}
+  .dot-timeline .dt-item:not(:last-child)::after{content:''; position:absolute; top:5px; left:56%; width:88%;
+    height:2px; background:var(--line);}
+  .dot-timeline .dt-dot{width:11px; height:11px; border-radius:50%; background:var(--accent); border:2px solid var(--bg-deep);
+    z-index:1;}
+  .dot-timeline .dt-label{font-size:8.5px; color:var(--text-dim); margin-top:5px; text-align:center; line-height:1.3;}
+
+  .stepper{display:flex; gap:12px;}
+  .stepper .snode{flex:1; border:1px solid var(--line); background:var(--panel); padding:9px 11px; position:relative;}
+  .stepper .snode.win{background:var(--panel-hi); border-color:var(--accent);}
+  .stepper .snum{width:20px; height:20px; border-radius:50%; background:var(--accent); color:var(--white);
+    font-size:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:5px;}
+  .stepper .stitle{font-size:10.5px; font-weight:bold; color:var(--white);}
+  .stepper .ssub{font-size:9px; color:var(--text-dim); margin-top:2px; line-height:1.3;}
+
+  .mini-gantt{position:relative;}
+  .mini-gantt .mg-axis{stroke:#2a4d75; stroke-width:1;}
+  .mini-gantt text{font-family:Arial,Helvetica,sans-serif;}
+
+  .cover-motif{position:absolute; top:0; right:0; width:520px; height:520px; opacity:.07; pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide">
+  <div class="cover">
+    <svg class="cover-motif" viewBox="0 0 200 200">
+      <circle cx="170" cy="30" r="20" stroke="#0085ca" stroke-width="1.5" fill="none"/>
+      <circle cx="170" cy="30" r="45" stroke="#0085ca" stroke-width="1.5" fill="none"/>
+      <circle cx="170" cy="30" r="70" stroke="#0085ca" stroke-width="1.5" fill="none"/>
+      <circle cx="170" cy="30" r="95" stroke="#0085ca" stroke-width="1.5" fill="none"/>
+      <line x1="70" y1="30" x2="270" y2="30" stroke="#0085ca" stroke-width="1.5"/>
+      <line x1="170" y1="-70" x2="170" y2="130" stroke="#0085ca" stroke-width="1.5"/>
+    </svg>
+    <div style="color:#5fc2f0; font-size:11px; font-weight:bold; letter-spacing:2.5px;">A&amp;M GCC ADVISORY · CASE STUDY</div>
+    <div class="ctitle serif" style="margin-top:22px;">Jash Engineering: Outsource,<br>Build&#8211;Operate&#8211;Transfer, or Captive</div>
+    <div class="csub serif">A sourcing recommendation, built from public information alone</div>
+    <div class="cmeta">
+      <b style="color:#fff; font-weight:bold;">Prepared for:</b> Anitya Vaibhav, Associate Director — A&amp;M GCC Advisory<br>
+      <b style="color:#fff; font-weight:bold;">Prepared by:</b> Gokul V<br>
+      <b style="color:#fff; font-weight:bold;">Date:</b> July 2026
+    </div>
+    <div class="badge-row" style="margin-top:30px; max-width:760px;">
+      <div class="badge win"><div class="bmark">2.00×</div><div class="blabel">Revenue, FY22→FY26</div><div class="bsub">₹368 Cr → ₹736 Cr</div></div>
+      <div class="badge win"><div class="bmark">₹923 Cr</div><div class="blabel">Order book</div><div class="bsub">Record, 71% outside India</div></div>
+      <div class="badge win"><div class="bmark">45+</div><div class="blabel">Countries</div><div class="bsub">Global top 5 in water-control gates</div></div>
+    </div>
+    <div class="cdisc">
+      <b style="color:#5fc2f0;">Jash Engineering has announced no capability-centre programme.</b>
+      This is how I would advise them from public information alone — not an A&amp;M client
+      engagement. Figures are drawn from published FY26 results and the Q3/9M FY26 investor
+      presentation. Figures marked ILLUSTRATIVE are stated planning assumptions, not company data.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · EXEC SUMMARY — GOVERNING THOUGHT #1 ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Executive Summary</div>
+    <div class="title serif">Convert the existing Indore footprint into a group capability centre —
+      <b>not build one, and not outsource or BOT it</b></div>
+  </div>
+  <div class="body">
+    <div class="governing">
+      <span class="tag">THE GOVERNING THOUGHT — 1 of 3</span>
+      <p class="serif">Jash doesn't need to <b>build</b> a capability centre — it already <b>owns</b> one. The
+        reason captives fail at this size is entity cost, and Jash already carries that cost in
+        Indore and Chennai. So we <b>convert, not build</b> — captive for the work that touches
+        IP or the customer, vendor for the rest.</p>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <h4>The problem</h4>
+        <div class="bignum-tile"><span class="bignum">59%</span></div>
+        <p style="font-size:11px; margin-top:2px;">of the EBITDA collapse came from overhead
+          growth, not price — revenue and cost doubled in lockstep.</p>
+      </div>
+      <div class="card">
+        <h4>The decision</h4>
+        <div class="chip-row" style="margin-bottom:6px;">
+          <span class="chip gold">Scale</span><span class="chip gold">Control</span><span class="chip gold">Clock</span>
+        </div>
+        <p style="font-size:11px;">All three tests point to captive (slide 6). Vendor stays
+          for one tower: transactional finance.</p>
+      </div>
+      <div class="card">
+        <h4>The binding risk</h4>
+        <div class="chip-row" style="margin-bottom:6px;"><span class="chip"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="n">20 mo</span> ramp</span></div>
+        <p style="font-size:11px;">The ramp, not the model choice — priced and gated on
+          slide 12.</p>
+      </div>
+    </div>
+    <div class="chart-wrap" style="flex:1; min-height:0;">
+      <div class="chart-title">The financial case, in one picture (₹Cr/yr) <span class="illus">ILLUSTRATIVE</span></div>
+      <svg class="chart-svg" viewBox="0 0 700 110" preserveAspectRatio="xMidYMid meet">
+        <line x1="15" y1="90" x2="685" y2="90" stroke="#2a4d75" stroke-width="1"/>
+        <rect x="40" y="10" width="130" height="80" fill="#0085ca"/>
+        <text x="105" y="106" text-anchor="middle" font-size="11" fill="#93aec8">Today: ₹42 Cr</text>
+        <text x="105" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">₹42</text>
+        <line x1="170" y1="20" x2="230" y2="20" stroke="#2a4d75" stroke-dasharray="3,2"/>
+        <rect x="230" y="20" width="130" height="40" fill="#34b56a"/>
+        <text x="295" y="14" text-anchor="middle" font-size="12" font-weight="bold" fill="#34b56a">&#8722;₹11 Cr saving</text>
+        <line x1="360" y1="60" x2="420" y2="60" stroke="#2a4d75" stroke-dasharray="3,2"/>
+        <rect x="420" y="30" width="130" height="60" fill="#5c8bb4"/>
+        <text x="485" y="106" text-anchor="middle" font-size="11" fill="#93aec8">Steady state: ₹31 Cr</text>
+        <text x="485" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">₹31</text>
+        <line x1="550" y1="90" x2="600" y2="90" stroke="#2a4d75" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="670" y="70" text-anchor="end" font-size="11" font-weight="bold" fill="#FFFFFF">₹9 Cr invest</text>
+        <text x="670" y="84" text-anchor="end" font-size="11" font-weight="bold" fill="#FFFFFF">10&#8211;20 mo payback</text>
+      </svg>
+    </div>
+    <div class="sowhat"><b>So what</b>With an estimated 120&#8211;180 FTE of support work behind a
+      ₹923 Cr order book, the Board's real choice today is whether to fund a baseline study —
+      not whether to fund the whole programme.</div>
+  </div>
+  <div class="footer">Illustrative financial case — no public benchmark exists for a company this size in this sector. Full arithmetic: slide 10.</div>
+  <div class="pagenum">2</div>
+</section>
+
+<!-- ============ 3 · SITUATION — with growth chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Situation</div>
+    <div class="title serif">Jash Engineering is a ₹736 Cr Indian water-infrastructure group that just
+      doubled in size — <b>and is now finding out what that costs</b></div>
+  </div>
+  <div class="body">
+    <div class="callout gold">
+      Jash is a promoter-led manufacturer out of Indore that's become India's market leader in
+      water-control gates and one of the top five globally, selling into 45+ countries. It got
+      there the way most Indian engineering companies do: by winning the next order and standing
+      up whatever entity was needed to deliver it, not by sitting down first to design an
+      operating model. That's a completely normal way to grow. It's also why, ten legal entities
+      later, <b>the back office hasn't caught up to the front book.</b>
+    </div>
+    <div class="grid2" style="flex:1;">
+      <div class="chart-wrap">
+        <div class="chart-title">Revenue, FY22 vs FY26 (₹Cr)</div>
+        <svg class="chart-svg" viewBox="0 0 320 170" preserveAspectRatio="xMidYMid meet">
+          <line x1="20" y1="140" x2="300" y2="140" stroke="#2a4d75" stroke-width="1"/>
+          <rect x="60" y="80" width="70" height="60" fill="#3a5f82"/>
+          <text x="95" y="72" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">368</text>
+          <text x="95" y="158" text-anchor="middle" font-size="11" fill="#93aec8">FY22</text>
+          <rect x="190" y="20" width="70" height="120" fill="#0085ca"/>
+          <text x="225" y="12" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">736</text>
+          <text x="225" y="158" text-anchor="middle" font-size="11" fill="#93aec8">FY26</text>
+          <text x="225" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#5fc2f0">2.00×</text>
+        </svg>
+        <div class="caption">Sales doubled exactly — order book is a record ₹923 Cr, 71% outside India.</div>
+      </div>
+      <div>
+        <div class="kicker" style="margin-bottom:8px;">Revenue mix, by product</div>
+        <div class="mini-donut-wrap">
+          <svg width="118" height="118" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#0d3a63" stroke-width="6"/>
+            <g transform="rotate(-90 21 21)">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#0085ca" stroke-width="6"
+                stroke-dasharray="60.8 39.2" stroke-dashoffset="0"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#5c8bb4" stroke-width="6"
+                stroke-dasharray="15.5 84.5" stroke-dashoffset="-60.8"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#5fc2f0" stroke-width="6"
+                stroke-dasharray="13.4 86.6" stroke-dashoffset="-76.3"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#93aec8" stroke-width="6"
+                stroke-dasharray="10.3 89.7" stroke-dashoffset="-89.7"/>
+            </g>
+            <text x="21" y="19.5" text-anchor="middle" font-size="6.5" font-weight="bold" fill="#fff">Product</text>
+            <text x="21" y="26" text-anchor="middle" font-size="5" fill="#93aec8">mix</text>
+          </svg>
+          <div class="mini-donut-legend">
+            <div class="lrow"><span class="swatch" style="background:#0085ca;"></span>Gates <span class="lval">60.8%</span></div>
+            <div class="lrow"><span class="swatch" style="background:#5c8bb4;"></span>Screening <span class="lval">15.5%</span></div>
+            <div class="lrow"><span class="swatch" style="background:#5fc2f0;"></span>Valves <span class="lval">13.4%</span></div>
+            <div class="lrow"><span class="swatch" style="background:#93aec8;"></span>Other <span class="lval">10.3%</span></div>
+          </div>
+        </div>
+        <div class="chip-row" style="margin-top:12px;">
+          <span class="chip">India #1</span><span class="chip">Global Top 5</span>
+          <span class="chip">45+ countries</span><span class="chip">4 plants</span>
+        </div>
+        <p style="font-size:10.5px; line-height:1.5; margin-top:10px; color:var(--text-dim);">
+          HQ Indore — gates, screening equipment, valves, water/wastewater treatment equipment.</p>
+      </div>
+    </div>
+    <div class="sowhat"><b>So what</b>Demand isn't the problem here. A company that wins orders this
+      well has earned the right to fix how it delivers them — this is a scaling problem, not a
+      demand problem.</div>
+  </div>
+  <div class="footer"><b>Source:</b> Jash Investor Presentation Q3/9M FY26 (BSE, Feb 2026); screener.in consolidated P&amp;L FY22&#8211;FY26.</div>
+  <div class="pagenum">3</div>
+</section>
+
+<!-- ============ 4 · THE SINGLE PROBLEM — with growth-rate chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Problem</div>
+    <div class="title serif">The support work behind a record order book has to scale
+      <b>without the cost base scaling with it again</b></div>
+  </div>
+  <div class="body">
+    <div class="callout">
+      <b>The problem, stated once:</b> Jash's cost base doubled exactly in step with its revenue,
+      capturing zero operating leverage. The finance, order-management, drafting, procurement and
+      project-controls work behind every order is still organised the way it was at half the
+      size. FY27 guidance needs PAT margin to move from ~10% to 12&#8211;13% — that means fixing
+      this, not just growing revenue further.
+    </div>
+    <div class="grid2" style="flex:1;">
+      <div class="chart-wrap">
+        <div class="chart-title">9M FY26 growth rates</div>
+        <svg class="chart-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid meet">
+          <line x1="20" y1="120" x2="300" y2="120" stroke="#2a4d75" stroke-width="1"/>
+          <rect x="60" y="95" width="70" height="25" fill="#0085ca"/>
+          <text x="95" y="88" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFFFFF">+2.5%</text>
+          <text x="95" y="138" text-anchor="middle" font-size="10.5" fill="#93aec8">Revenue</text>
+          <rect x="190" y="20" width="70" height="100" fill="#e2564b"/>
+          <text x="225" y="13" text-anchor="middle" font-size="14" font-weight="bold" fill="#e2564b">+9.8%</text>
+          <text x="225" y="138" text-anchor="middle" font-size="10.5" fill="#93aec8">Overhead</text>
+        </svg>
+        <div class="caption">Overhead grew nearly 4× faster than revenue.</div>
+      </div>
+      <div class="grid2" style="gap:10px;">
+        <div class="card"><h4>Where it bites hardest</h4>
+          <p style="font-size:10.5px;">Rodney Hunt (US, ~35% of revenue), on a 12% revenue fall:</p>
+          <div class="delta-bar">
+            <div class="drow"><span class="dlabel">FY25 PAT</span><div class="dtrack"><div class="dfill" style="width:29%; background:#34b56a;"></div></div><span class="dval pos">+₹6.0 Cr</span></div>
+            <div class="drow"><span class="dlabel">FY26 PAT</span><div class="dtrack"><div class="dfill" style="width:71%; background:#e2564b;"></div></div><span class="dval neg">−₹15.0 Cr</span></div>
+          </div>
+        </div>
+        <div class="card"><h4>Why it's accelerating</h4>
+          <p style="font-size:10.5px; margin-bottom:2px;">3 of 10 legal entities added in ~12 months, each with its own overhead:</p>
+          <div class="dot-timeline" style="margin-top:8px;">
+            <div class="dt-item"><div class="dt-dot"></div><div class="dt-label">Entity 8</div></div>
+            <div class="dt-item"><div class="dt-dot"></div><div class="dt-label">Entity 9</div></div>
+            <div class="dt-item"><div class="dt-dot"></div><div class="dt-label">Entity 10</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout gold">
+      <b>Every slide that follows is in service of this one problem</b> — not a list of unrelated
+      issues. The question it forces: <i>outsource it, BOT it, or build a captive to run it — and
+      why not the other two?</i>
+    </div>
+  </div>
+  <div class="footer"><b>Source:</b> derived from Jash Investor Presentation Q3/9M FY26 p.8 (Gross profit − EBITDA); p.6 (subsidiary performance).</div>
+  <div class="pagenum">4</div>
+</section>
+
+<!-- ============ 5 · MECE OPTIONS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Options</div>
+    <div class="title serif">Three routes cover the sourcing decision completely —
+      <b>and none of the three overlap</b></div>
+  </div>
+  <div class="body">
+    <div class="rail" style="flex:0 0 auto; min-height:110px;">
+      <div class="rail-side">
+        <div class="pane-label win">MECE</div>
+        <div style="font-family:'Times New Roman',serif; font-size:15px; color:var(--white); line-height:1.35;">Mutually Exclusive,<br>Collectively Exhaustive</div>
+      </div>
+      <div class="rail-main">
+        <p style="font-size:12px; line-height:1.6; color:var(--text);">Every way of sourcing support
+          work is either done by a vendor you don't own (outsourcing), a vendor-built asset you take
+          over later (BOT), or an entity you own from day one (captive). There's no fourth
+          meaningfully different route, and no two of these three overlap — each answers "who owns
+          the entity and who carries the risk" differently, and every option answers it exactly once.</p>
+      </div>
+    </div>
+    <div class="specs">
+      <div class="spec">
+        <div class="spec-name">Outsourcing</div>
+        <div class="spec-row"><span class="k">Owns the entity</span><span class="v">Vendor</span></div>
+        <div class="spec-row"><span class="k">Carries the risk</span><span class="v">Vendor, contractually</span></div>
+        <div class="spec-row"><span class="k">Time to first output</span><span class="v">~2&#8211;3 months</span></div>
+        <div class="spec-row"><span class="k">Extra cost</span><span class="v">25&#8211;45% markup, forever</span></div>
+      </div>
+      <div class="spec">
+        <div class="spec-name">Build&#8211;Operate&#8211;Transfer</div>
+        <div class="spec-row"><span class="k">Owns the entity</span><span class="v">Vendor → you, at transfer</span></div>
+        <div class="spec-row"><span class="k">Carries the risk</span><span class="v">Shared; shifts at transfer</span></div>
+        <div class="spec-row"><span class="k">Time to first output</span><span class="v">~4&#8211;6 months</span></div>
+        <div class="spec-row"><span class="k">Extra cost</span><span class="v">Markup now, ends at transfer</span></div>
+      </div>
+      <div class="spec win">
+        <div class="spec-name win">Captive capability centre</div>
+        <div class="spec-row"><span class="k">Owns the entity</span><span class="v win">You, from day one</span></div>
+        <div class="spec-row"><span class="k">Carries the risk</span><span class="v win">You</span></div>
+        <div class="spec-row"><span class="k">Time to first output</span><span class="v">9&#8211;15 months from scratch</span></div>
+        <div class="spec-row"><span class="k">Extra cost</span><span class="v">Nothing extra — but you carry the risk</span></div>
+      </div>
+    </div>
+    <div class="sowhat"><b>So what</b>Because the set is closed, the job isn't to find a fourth
+      option. It's to test which of these three actually fits Jash — that's the next slide.</div>
+  </div>
+  <div class="footer"><b>Source:</b> Model definitions synthesised from public GCC-advisory materials and 2026 mid-market capability-centre guidance.</div>
+  <div class="pagenum">5</div>
+</section>
+
+<!-- ============ 6 · DECISION TESTS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Test</div>
+    <div class="title serif">Three tests settle it — <b>scale, control, clock</b> —
+      and on scale alone Jash is a borderline call</div>
+  </div>
+  <div class="body">
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="testband">
+        <div class="tword">Scale</div>
+        <div class="tbody">
+          <div class="tq" style="flex:0 0 30%;">Enough FTE to amortise an entity? Below ~30&#8211;50
+            rarely pays back; ~150&#8211;300 is where captive beats a vendor on unit cost</div>
+          <div class="ta" style="flex:1;">
+            <div class="gauge">
+              <div class="zone fail" style="width:16.7%;"></div>
+              <div class="zone mid" style="left:16.7%; width:33.3%;"></div>
+              <div class="zone win" style="left:50%; width:50%;"></div>
+              <div class="marker" style="left:50%;"><span class="mlabel">Jash, est. 120&#8211;180</span></div>
+            </div>
+            <div class="gauge-scale"><span>0</span><span>50</span><span>150</span><span>300 FTE</span></div>
+            <div style="font-size:9.5px; color:var(--text-faint); margin-top:2px;">
+              <span class="illus">ILLUSTRATIVE</span> — borderline, no public headcount exists</div>
+          </div>
+        </div>
+      </div>
+      <div class="testband">
+        <div class="tword">Control</div>
+        <div class="tbody">
+          <div class="tq">Does the work touch IP, customers, or regulators?</div>
+          <div class="ta" style="display:flex; align-items:center; gap:20px;">
+            <span style="flex:1;">Yes — engineering drafting for water-control gates <b style="color:var(--white);">is the
+              product</b>; US municipal customer contact runs through it</span>
+            <span class="chip gold"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/></svg>IP</span>
+            <span class="chip gold"><svg class="ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customer</span>
+          </div>
+        </div>
+      </div>
+      <div class="testband">
+        <div class="tword">Clock</div>
+        <div class="tbody">
+          <div class="tq" style="flex:0 0 30%;">How fast is it needed?</div>
+          <div class="ta" style="flex:1;">
+            <div class="dot-timeline">
+              <div class="dt-item"><div class="dt-dot" style="background:#34b56a;"></div><div class="dt-label"><b style="color:var(--white);">Now</b><br>₹923 Cr order book live</div></div>
+              <div class="dt-item"><div class="dt-dot"></div><div class="dt-label"><b style="color:var(--white);">+12 mo</b><br>FY27 margin guidance due</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout gold">
+      <b>The honest concession:</b> scale alone doesn't decide this. A competent vendor could
+      plausibly win on unit cost. It's the entity-already-exists fact, next slide, that tips it.
+    </div>
+  </div>
+  <div class="footer"><b>Source:</b> FTE thresholds from 2026 mid-market capability-centre guidance. Jash FTE estimate is illustrative — no public Jash headcount exists.</div>
+  <div class="pagenum">6</div>
+</section>
+
+<!-- ============ 7 · RECOMMENDATION — GOVERNING THOUGHT #2, with badge row ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Recommendation</div>
+    <div class="title serif">Jash doesn't need to build a capability centre —
+      <b>it already owns one</b></div>
+  </div>
+  <div class="body">
+    <div class="governing">
+      <span class="tag">THE GOVERNING THOUGHT — 2 of 3</span>
+      <p class="serif">Jash doesn't need to <b>build</b> a capability centre — it already <b>owns</b> one. The
+        reason captives fail at this size is entity cost, and Jash already carries that cost in
+        Indore and Chennai. So we <b>convert, not build</b> — captive for the work that touches
+        IP or the customer, vendor for the rest.</p>
+    </div>
+    <div class="rail" style="flex:1;">
+      <div class="rail-side">
+        <div class="kicker">The call, at a glance</div>
+        <div class="badge win" style="text-align:left; padding:12px 14px;"><div class="bmark" style="margin-bottom:2px;">✓ Captive</div><div class="bsub">IP &amp; customer-touching work</div></div>
+        <div class="badge" style="text-align:left; padding:10px 14px;"><div class="blabel">↔ Vendor kept</div><div class="bsub">One tower: transactional finance</div></div>
+        <div class="badge" style="text-align:left; padding:10px 14px;"><div class="blabel">✗ BOT</div><div class="bsub">Rejected — see slide 9</div></div>
+      </div>
+      <div class="rail-main">
+        <p style="font-size:12px; line-height:1.5; color:var(--text-dim); margin-bottom:2px;">
+          Indore and Chennai/Shivpad already carry the exact costs that normally make a captive
+          fail at this scale — <b style="color:var(--accent-text);">Jash pays none of it twice:</b></p>
+        <div class="checklist">
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Incorporation</b> — legal entity live today</span></div>
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Payroll</b> — running infrastructure</span></div>
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Statutory filings</b> — current and compliant</span></div>
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Transfer pricing</b> — structure already exists</span></div>
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>Real estate</b> — facilities already leased/owned</span></div>
+          <div class="check-item"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span><b>First HR team</b> — already in place</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><b>Basis:</b> entity-cost reasoning applied to Jash's existing footprint. Advisory judgement, not a published claim.</div>
+  <div class="pagenum">7</div>
+</section>
+
+<!-- ============ 8 · WHY — ENTITY COST, with relative-cost chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Why — Part 1</div>
+    <div class="title serif">The reason captives usually fail at this size is entity cost —
+      <b>and Jash already carries all of it</b></div>
+  </div>
+  <div class="body">
+    <div class="split" style="flex:1.3;">
+      <div class="pane fail">
+        <div class="pane-label fail">Why small captives normally fail</div>
+        <div class="pane-mark fail">✗</div>
+        <p>At 120&#8211;180 FTE scale, the standard failure mode is entity cost: incorporation,
+          first-year statutory setup, payroll infrastructure, transfer-pricing design, real
+          estate, a first HR team. That's why small captives don't clear the bar.</p>
+      </div>
+      <div class="pane win">
+        <div class="pane-label win">Why Jash is different</div>
+        <div class="pane-mark win">✓</div>
+        <p>Jash already operates the Indore manufacturing base and the Chennai/Shivpad site — the
+          legal entity, payroll, compliance and facilities already exist and run today.</p>
+      </div>
+    </div>
+    <div class="chart-wrap" style="flex:0.7;">
+      <div class="chart-title">Incremental entity-setup cost (illustrative, directional)</div>
+      <svg class="chart-svg" viewBox="0 0 500 100" preserveAspectRatio="xMidYMid meet">
+        <text x="10" y="20" font-size="11" fill="#dee7f0">A new captive, built from scratch</text>
+        <rect x="10" y="30" width="420" height="18" fill="#e2564b"/>
+        <text x="440" y="43" font-size="10.5" fill="#e2564b" font-weight="bold">High</text>
+        <text x="10" y="72" font-size="11" fill="#dee7f0">Jash, converting Indore + Chennai</text>
+        <rect x="10" y="82" width="20" height="18" fill="#34b56a"/>
+        <text x="40" y="95" font-size="10.5" fill="#34b56a" font-weight="bold">Near zero</text>
+      </svg>
+    </div>
+    <div class="sowhat"><b>So what</b>This is a conversion of existing capacity, not a greenfield
+      build — no new entity, no new incorporation, no new statutory registration required. The
+      single biggest disadvantage of the captive model doesn't apply to Jash.</div>
+  </div>
+  <div class="footer"><b>Basis:</b> Jash Investor Presentation Q3/9M FY26; jashindia.com subsidiary and plant list. Cost bars are directional, not measured figures.</div>
+  <div class="pagenum">8</div>
+</section>
+
+<!-- ============ 9 · WHY — REJECTED OPTIONS, with markup-exposure chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Why — Part 2</div>
+    <div class="title serif">BOT's entire value is buying local build capability Jash already owns —
+      <b>and pure outsourcing puts IP-touching work at arm's length</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:1;">
+      <div class="chart-title">Markup exposure over time, by route (illustrative)</div>
+      <svg class="chart-svg" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet">
+        <text x="10" y="20" font-size="11" fill="#dee7f0" font-weight="bold">Outsourcing</text>
+        <rect x="150" y="8" width="410" height="16" fill="#e2564b"/>
+        <text x="575" y="20" font-size="10" fill="#e2564b" text-anchor="end" font-weight="bold">25&#8211;45% · forever</text>
+        <text x="10" y="60" font-size="11" fill="#dee7f0" font-weight="bold">BOT</text>
+        <rect x="150" y="48" width="220" height="16" fill="#5c8bb4"/>
+        <text x="380" y="60" font-size="10" fill="#5c8bb4" font-weight="bold">markup until transfer, yr 2&#8211;3</text>
+        <text x="10" y="100" font-size="11" fill="#dee7f0" font-weight="bold">Captive</text>
+        <rect x="150" y="88" width="4" height="16" fill="#34b56a"/>
+        <text x="160" y="100" font-size="10" fill="#34b56a" font-weight="bold">none, ever</text>
+      </svg>
+    </div>
+    <div class="rail">
+      <div class="rail-side">
+        <div class="pane-label fail" style="font-size:12px;">Rejected — both of them</div>
+        <div style="font-family:'Times New Roman',serif; font-size:15px; color:var(--white); line-height:1.35;">
+          Named and defended, not waved away</div>
+      </div>
+      <div class="rail-main" style="gap:14px;">
+        <p style="font-size:12px; line-height:1.55;"><b style="color:var(--accent-text);">Against BOT —</b>
+          its value is a vendor building local capability you don't have, handed over later at a markup.
+          Jash already has that capability. BOT earns its keep when you don't already have India — Jash does.</p>
+        <p style="font-size:12px; line-height:1.55;"><b style="color:var(--accent-text);">Against pure outsourcing —</b>
+          it puts IP- and customer-touching work at arm's length without a real unit-cost edge once you
+          already own the entity that could do it captively — and permanently pays the 25&#8211;45% markup.</p>
+      </div>
+    </div>
+    <div class="callout gold">
+      <b>Where outsourcing IS kept:</b> transactional, non-IP-touching finance work — AP
+      processing, payroll, expense audit. A deliberate carve-out, not an oversight.
+    </div>
+  </div>
+  <div class="footer">Naming the rejected alternatives, not just the chosen path, is what separates a recommendation from a foregone conclusion.</div>
+  <div class="pagenum">9</div>
+</section>
+
+<!-- ============ 10 · FINANCIAL CASE — waterfall chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Financial Case</div>
+    <div class="title serif">₹42 Cr of overhead is genuinely offshorable; consolidating it costs ₹9 Cr and
+      <b>pays back in 10&#8211;20 months</b></div>
+  </div>
+  <div class="body">
+    <div class="callout">
+      9M FY26 operating overhead (Gross profit − EBITDA) = <b>₹207.80 Cr</b> → annualised ≈
+      <b>₹277 Cr/year</b> — the group's whole overhead. Most of it isn't offshorable.
+    </div>
+    <div class="chart-wrap" style="flex:1;">
+      <div class="chart-title">Cost bridge, offshorable overhead (₹Cr/yr) <span class="illus">ILLUSTRATIVE</span></div>
+      <svg class="chart-svg" viewBox="0 0 700 150" preserveAspectRatio="xMidYMid meet">
+        <line x1="20" y1="128" x2="680" y2="128" stroke="#2a4d75" stroke-width="1"/>
+        <rect x="60" y="18" width="150" height="110" fill="#0085ca"/>
+        <text x="135" y="12" text-anchor="middle" font-size="20" font-weight="bold" fill="#FFFFFF">₹42 Cr</text>
+        <text x="135" y="142" text-anchor="middle" font-size="12" fill="#93aec8">Today</text>
+        <rect x="290" y="18" width="150" height="29" fill="#34b56a"/>
+        <text x="365" y="12" text-anchor="middle" font-size="16" font-weight="bold" fill="#34b56a">&#8722;₹11 Cr saving</text>
+        <line x1="210" y1="18" x2="290" y2="18" stroke="#2a4d75" stroke-dasharray="3,2"/>
+        <line x1="440" y1="47" x2="520" y2="47" stroke="#2a4d75" stroke-dasharray="3,2"/>
+        <rect x="520" y="47" width="150" height="81" fill="#5c8bb4"/>
+        <text x="595" y="41" text-anchor="middle" font-size="20" font-weight="bold" fill="#5c8bb4">₹31 Cr</text>
+        <text x="595" y="142" text-anchor="middle" font-size="12" fill="#93aec8">Steady state</text>
+      </svg>
+    </div>
+    <div class="specs" style="flex:0 0 96px;">
+      <div class="spec" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Today</span>
+        <div class="bignum" style="font-size:24px;">₹42<span style="font-size:12px;">Cr</span></div>
+        <span style="font-size:9.5px; color:var(--text-dim);">15% of overhead — assumption</span>
+      </div>
+      <div class="spec win" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Investment</span>
+        <div class="bignum" style="font-size:24px;">₹9<span style="font-size:12px;">Cr</span></div>
+        <span style="font-size:9.5px; color:var(--text-dim);">Conversion, not greenfield</span>
+      </div>
+      <div class="spec" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Payback</span>
+        <div class="bignum pos" style="font-size:24px;">10&#8211;20<span style="font-size:12px;">mo</span></div>
+        <span style="font-size:9.5px; color:var(--text-dim);">Arithmetic vs realistic ramp</span>
+      </div>
+    </div>
+    <div class="sowhat"><b>So what</b>The 10-month figure is arithmetic. Allowing a realistic
+      12&#8211;18 month ramp, payback is closer to 20 months — we lead with the slower number,
+      because a plan that quotes only its best case invites exactly the challenge it deserves.</div>
+  </div>
+  <div class="footer"><b>Source:</b> derived from Jash Investor Presentation Q3/9M FY26 p.8. The 15%/25% figures are stated assumptions — no public benchmark exists.</div>
+  <div class="pagenum">10</div>
+</section>
+
+<!-- ============ 11 · ROADMAP — Gantt timeline chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Roadmap</div>
+    <div class="title serif">Four phases over 20 months —
+      <b>lowest-risk towers move first, the product IP moves last</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:1;">
+      <div class="chart-title">Programme timeline, months 0&#8211;20, with stop/go gates</div>
+      <svg class="chart-svg" viewBox="0 0 640 190" preserveAspectRatio="xMidYMid meet">
+        <line x1="20" y1="170" x2="620" y2="170" stroke="#2a4d75" stroke-width="1"/>
+        <text x="20" y="185" font-size="9.5" fill="#93aec8">0</text>
+        <text x="110" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">3</text>
+        <text x="290" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">9</text>
+        <text x="470" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">15</text>
+        <text x="620" y="185" font-size="9.5" fill="#93aec8" text-anchor="end">20 mo</text>
+
+        <rect x="20" y="40" width="90" height="34" fill="#0085ca"/>
+        <text x="65" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 1</text>
+        <rect x="110" y="40" width="180" height="34" fill="#2251A0"/>
+        <text x="200" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 2</text>
+        <rect x="290" y="40" width="180" height="34" fill="#5B7BB5"/>
+        <text x="380" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 3</text>
+        <rect x="470" y="40" width="150" height="34" fill="#5c8bb4"/>
+        <text x="545" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 4</text>
+
+        <circle cx="110" cy="100" r="9" fill="#34b56a"/><text x="110" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G1</text>
+        <circle cx="290" cy="100" r="9" fill="#34b56a"/><text x="290" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G2</text>
+        <circle cx="470" cy="100" r="9" fill="#34b56a"/><text x="470" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G3</text>
+        <circle cx="620" cy="100" r="9" fill="#34b56a"/><text x="620" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G4</text>
+
+        <text x="65" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">Baseline, capex nil</text>
+        <text x="200" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">First tower live</text>
+        <text x="380" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">Engineering drafting moves</text>
+        <text x="545" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">₹11 Cr run-rate realised</text>
+      </svg>
+    </div>
+    <div class="callout gold">
+      Each gate is a stop/go decision, not a status report. Full gate criteria, RACI and the
+      first-90-days list are in the appendix (A1&#8211;A2).
+    </div>
+  </div>
+  <div class="footer">Timings are indicative and assume a full-time programme lead from month 1.</div>
+  <div class="pagenum">11</div>
+</section>
+
+<!-- ============ 12 · RISKS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Risks</div>
+    <div class="title serif">The binding risk is the ramp, not the model choice —
+      <b>three named precedents show both models fail the same way</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:0.62;">
+      <div class="chart-title">Precedent deal sizes, face value <span class="illus">NOT CURRENCY-ADJUSTED</span></div>
+      <svg class="chart-svg" viewBox="0 0 640 90" preserveAspectRatio="xMidYMid meet">
+        <text x="10" y="16" font-size="10.5" fill="#dee7f0" font-weight="bold">Aviva → WNS (BOT, 2008)</text>
+        <rect x="230" y="6" width="66" height="16" fill="#5c8bb4"/>
+        <text x="276" y="18" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">£115M</text>
+        <text x="10" y="46" font-size="10.5" fill="#dee7f0" font-weight="bold">GECIS → Genpact (captive, 2005)</text>
+        <rect x="230" y="36" width="286" height="16" fill="#0085ca"/>
+        <text x="506" y="48" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">$500M</text>
+        <text x="10" y="76" font-size="10.5" fill="#dee7f0" font-weight="bold">Citi Global Svcs → Genpact (captive, 2008)</text>
+        <rect x="230" y="66" width="400" height="16" fill="#0085ca"/>
+        <text x="600" y="78" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">$700M</text>
+      </svg>
+      <div class="caption">The same failure pattern recurs at every scale — from £115M to $700M.</div>
+    </div>
+    <table class="hoverable-table">
+      <tr><th style="width:34%;">Precedent</th><th>What it proves</th></tr>
+      <tr class="hoverable"><td class="num">Aviva → WNS, £115M</td><td>BOT where the transfer never happened — the vendor kept it permanently</td></tr>
+      <tr class="hoverable"><td class="num">GECIS → Genpact, $500M</td><td>Captives get sold too — ownership isn't immunity from the same economics</td></tr>
+      <tr class="hoverable"><td class="num">Citi Global Services → Genpact, $700M</td><td>The same pattern, at much larger scale</td></tr>
+    </table>
+    <div class="callout gold">
+      <b>The specific risk:</b> a six-month ramp slip doesn't just delay the ₹11 Cr saving. It
+      means running the old cost base and the transition cost at the same time.
+    </div>
+    <div class="callout" style="flex:1;">
+      <b>Honest unknowns:</b> actual Jash headcount isn't public — the 120&#8211;180 FTE figure is
+      derived, not measured. The 15%/25% figures are assumptions with no public benchmark. No
+      confirmed precedent exists of an Indian engineering group at this scale converting an
+      existing site into a group capability centre. Gate G1 (month 3, before capex) tests the 15%
+      assumption directly and can invalidate the case.
+    </div>
+  </div>
+  <div class="footer"><b>Source:</b> Aviva/WNS, GECIS/Genpact, Citigroup/Genpact — publicly reported BOT and captive divestitures.</div>
+  <div class="pagenum">12</div>
+</section>
+
+<!-- ============ 13 · CLOSE — GOVERNING THOUGHT #3, with recap ribbon ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Close</div>
+    <div class="title serif">Jash doesn't need to build a capability centre — it already owns one.
+      <b>Confirm the baseline, then decide.</b></div>
+  </div>
+  <div class="body">
+    <div class="governing">
+      <span class="tag">THE GOVERNING THOUGHT — 3 of 3</span>
+      <p class="serif">Jash doesn't need to <b>build</b> a capability centre — it already <b>owns</b> one. The
+        reason captives fail at this size is entity cost, and Jash already carries that cost in
+        Indore and Chennai. So we <b>convert, not build</b> — captive for the work that touches
+        IP or the customer, vendor for the rest.</p>
+    </div>
+    <div>
+      <div class="kicker" style="margin-bottom:8px;">Where you've seen this argument</div>
+      <div class="recap">
+        <div class="rnode"><div class="rnum">1</div><div class="rtitle">Executive summary</div><div class="rsub">Slide 2 — the answer, up front</div></div>
+        <div class="rnode"><div class="rnum">2</div><div class="rtitle">Recommendation</div><div class="rsub">Slide 7 — stated, then defended</div></div>
+        <div class="rnode here"><div class="rnum">3</div><div class="rtitle">Close — you are here</div><div class="rsub">One answer, said three times, on purpose</div></div>
+      </div>
+    </div>
+    <div class="callout" style="flex:1;">
+      <b>What's asked of the reader:</b> approve the baseline study (month 0); approve the Phase 1
+      lowest-risk tower move; hold the ₹9 Cr investment decision until Gate G1 confirms the 15%
+      assumption. Only one of four decisions commits money — and not on day one.
+    </div>
+    <div class="callout gold" style="font-style:italic;">
+      Jash grew fast and is now paying for the back office it never had time to design. The fix
+      on the table costs almost nothing to start — and nothing to find out if it's wrong.
+    </div>
+  </div>
+  <div class="footer">End of core narrative. Appendix follows: governance, 90-day plan, tower map, assumptions, sources, glossary.</div>
+  <div class="pagenum">13</div>
+</section>
+
+<!-- ============ 14 · APPENDIX DIVIDER ============ -->
+<section class="slide">
+  <div class="divider">
+    <div class="dnum">APPENDIX</div>
+    <div class="dtitle serif">Detail behind the recommendation</div>
+    <div class="dsub">Not part of the core narrative — governance mechanics, the 90-day plan, the
+      tower-by-tower move map, the assumptions register, sources and a glossary. Referenced from
+      the core slides; read only if you're checking the work.</div>
+  </div>
+</section>
+
+<!-- ============ 15 · A1 GOVERNANCE ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A1 · Governance</div>
+    <div class="title serif">One full-time programme lead, four stop/go gates —
+      <b>a steering committee that can stop the programme, not just review it</b></div>
+  </div>
+  <div class="body">
+    <div class="kicker" style="margin-bottom:6px;">The gate sequence — a stop/go decision, not a status report</div>
+    <div class="stepper" style="flex:0 0 auto;">
+      <div class="snode win"><div class="snum">G1</div><div class="stitle">Baseline confirmed</div><div class="ssub">15% assumption validated or corrected — can stop here, no capex spent</div></div>
+      <div class="snode"><div class="snum">G2</div><div class="stitle">First tower live</div><div class="ssub">Stable for 8 weeks</div></div>
+      <div class="snode"><div class="snum">G3</div><div class="stitle">Drafting transferred</div><div class="ssub">No quality regression</div></div>
+      <div class="snode"><div class="snum">G4</div><div class="stitle">Run-rate saving</div><div class="ssub">Evidenced in the P&amp;L</div></div>
+    </div>
+    <div class="grid2" style="flex:0 0 auto;">
+      <div>
+        <div class="kicker" style="margin-bottom:6px;">Structure</div>
+        <table>
+          <tr><th>Role</th><th>Cadence</th></tr>
+          <tr class="hoverable"><td class="num">Steering committee</td><td>CMD, CFO, COO — monthly; authority to halt at any gate</td></tr>
+          <tr class="hoverable"><td class="num">Programme lead</td><td>Full-time, dedicated</td></tr>
+          <tr class="hoverable"><td class="num">Receiving-site lead</td><td>Indore — hiring, ramp, quality</td></tr>
+          <tr class="hoverable"><td class="num">Finance controller</td><td>Owns benefit tracking — saving is booked, not asserted</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="kicker" style="margin-bottom:6px;">The four gates</div>
+        <table>
+          <tr><th>Gate</th><th>Test to pass</th></tr>
+          <tr class="hoverable"><td class="num">G1</td><td>Baseline confirmed; 15% assumption validated or corrected</td></tr>
+          <tr class="hoverable"><td class="num">G2</td><td>First tower live and stable 8 weeks</td></tr>
+          <tr class="hoverable"><td class="num">G3</td><td>Engineering drafting transferred, no quality regression</td></tr>
+          <tr class="hoverable"><td class="num">G4</td><td>Run-rate saving evidenced in the P&amp;L</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="callout gold" style="flex:1; display:flex; align-items:center;">
+      <span><b>G1 can invalidate the case.</b> If the baseline shows the offshorable share is
+      materially below 15%, the programme stops at month 3 having spent no capex — the steering
+      committee's authority to halt (above) is real, not ceremonial.</span>
+    </div>
+  </div>
+  <div class="footer">Advisory judgement, calibrated to a programme of this size.</div>
+  <div class="pagenum">15</div>
+</section>
+
+<!-- ============ 16 · A2 FIRST 90 DAYS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A2 · First 90 Days</div>
+    <div class="title serif">Seven actions, each with an owner and a date —
+      <b>none of which requires capital to be released</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:0 0 118px;">
+      <div class="chart-title">Seven actions, plotted by week</div>
+      <svg class="chart-svg" viewBox="0 0 640 78" preserveAspectRatio="xMidYMid meet">
+        <line x1="20" y1="55" x2="620" y2="55" stroke="#2a4d75" stroke-width="1"/>
+        <text x="20" y="70" font-size="9" fill="#93aec8">Wk 0</text>
+        <text x="220" y="70" font-size="9" fill="#93aec8" text-anchor="middle">Wk 4</text>
+        <text x="420" y="70" font-size="9" fill="#93aec8" text-anchor="middle">Wk 8</text>
+        <text x="620" y="70" font-size="9" fill="#93aec8" text-anchor="end">Wk 12</text>
+        <circle cx="120" cy="55" r="8" fill="#34b56a"/><text x="120" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">3</text>
+        <text x="120" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Governance</text>
+        <circle cx="205" cy="55" r="8" fill="#0085ca"/><text x="205" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">1</text>
+        <text x="205" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Baseline</text>
+        <circle cx="235" cy="55" r="8" fill="#0085ca"/><text x="235" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">2</text>
+        <text x="260" y="20" text-anchor="middle" font-size="8" fill="#dee7f0">Headcount</text>
+        <circle cx="320" cy="55" r="8" fill="#e2564b"/><text x="320" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">4</text>
+        <text x="320" y="38" text-anchor="middle" font-size="8" fill="#e2564b" font-weight="bold">Gate G1</text>
+        <circle cx="420" cy="55" r="8" fill="#5c8bb4"/><text x="420" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">5</text>
+        <text x="420" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">TOM design</text>
+        <circle cx="520" cy="55" r="8" fill="#5c8bb4"/><text x="520" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">6</text>
+        <text x="520" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Site capacity</text>
+        <circle cx="620" cy="55" r="8" fill="#5c8bb4"/><text x="620" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">7</text>
+        <text x="605" y="38" text-anchor="end" font-size="8" fill="#dee7f0">Transfer pricing</text>
+      </svg>
+    </div>
+    <table style="flex:1;">
+      <tr><th style="width:5%;">#</th><th style="width:38%;">Action</th><th style="width:16%;">Owner</th><th style="width:11%;">By</th><th>Why it is first</th></tr>
+      <tr><td class="num">1</td><td>Baseline the ₹277 Cr overhead by entity and function</td><td>CFO</td><td>Wk 4</td><td>Everything rests on this</td></tr>
+      <tr><td class="num">2</td><td>Confirm actual support headcount across all entities</td><td>HR Director</td><td>Wk 4</td><td>Tests the 120&#8211;180 FTE scale call</td></tr>
+      <tr><td class="num">3</td><td>Stand up governance, appoint the programme lead</td><td>CMD</td><td>Wk 2</td><td>Part-time leads are the top failure predictor</td></tr>
+      <tr><td class="num">4</td><td>Validate or correct the 15% offshorable assumption</td><td>CFO/COO</td><td>Wk 6</td><td>Gate G1 — can stop the programme here, no capex spent</td></tr>
+      <tr><td class="num">5</td><td>Design the target operating model, tower map</td><td>Prog. lead</td><td>Wk 8</td><td>Converts recommendation into a transfer plan</td></tr>
+      <tr><td class="num">6</td><td>Confirm Indore site capacity, fit-out plan</td><td>COO</td><td>Wk 10</td><td>Tests the no-new-site assumption</td></tr>
+      <tr><td class="num">7</td><td>Draft the transfer-pricing position</td><td>CFO/Tax</td><td>Wk 12</td><td>Needed before the first tower moves</td></tr>
+    </table>
+    <div class="sowhat"><b>So what</b>Every action above is analysis, design or governance. The ₹9
+      Cr isn't committed until Gate G1 confirms the case.</div>
+  </div>
+  <div class="footer">Owners named by role, not individual. Dates from programme start.</div>
+  <div class="pagenum">16</div>
+</section>
+
+<!-- ============ 17 · A3 TOWER MAP — 100% stacked bar ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A3 · Tower Map</div>
+    <div class="title serif">Six towers move to the centre, one stays with a vendor —
+      <b>the split follows IP and customer contact, not cost</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:0.55;">
+      <div class="chart-title">Seven towers, by destination</div>
+      <svg class="chart-svg" viewBox="0 0 640 60" preserveAspectRatio="xMidYMid meet">
+        <rect x="10" y="10" width="514" height="30" fill="#0085ca"/>
+        <text x="267" y="30" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">6 towers → Captive</text>
+        <rect x="524" y="10" width="106" height="30" fill="#5c8bb4"/>
+        <text x="577" y="30" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="bold">1 → Vendor</text>
+      </svg>
+    </div>
+    <table style="flex:1;">
+      <tr><th style="width:30%;">Tower</th><th style="width:16%;">Destination</th><th>Why</th></tr>
+      <tr><td class="num">Finance &amp; accounting</td><td class="num">Captive</td><td>Group reporting must be owned; duplication is the largest saving</td></tr>
+      <tr><td class="num">Order management</td><td class="num">Captive</td><td>Direct customer contact on a ₹923 Cr order book</td></tr>
+      <tr><td class="num">Engineering drafting</td><td class="num">Captive</td><td>This is the product — cannot sit at arm's length</td></tr>
+      <tr><td class="num">Procurement operations</td><td class="num">Captive</td><td>Consolidated spend visibility across six countries</td></tr>
+      <tr><td class="num">Project controls</td><td class="num">Captive</td><td>Order-book discipline needs one reporting standard</td></tr>
+      <tr><td class="num">HR administration</td><td class="num">Captive (lite)</td><td>Follows the people; removes duplication</td></tr>
+      <tr style="background:#0f4577;"><td class="num">Transactional finance (AP, payroll)</td><td class="num">Vendor</td><td>Deliberate carve-out — sub-scale, non-differentiating</td></tr>
+    </table>
+  </div>
+  <div class="footer">Basis: advisory judgement applied to Jash's published entity and product structure. No new site is proposed — Indore + Chennai only.</div>
+  <div class="pagenum">17</div>
+</section>
+
+<!-- ============ 18 · A4 ASSUMPTIONS — sensitivity chart ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A4 · Assumptions Register</div>
+    <div class="title serif">Six assumptions carry this case —
+      <b>three of them are named as weak</b></div>
+  </div>
+  <div class="body">
+    <div class="grid2" style="flex:1;">
+      <table>
+        <tr><th style="width:8%;">#</th><th style="width:42%;">Assumption</th><th style="width:20%;">Value</th><th>Conf.</th></tr>
+        <tr><td class="num">1</td><td>Offshorable share of overhead</td><td class="num">15%</td><td class="neg num">WEAK</td></tr>
+        <tr><td class="num">2</td><td>Support-function headcount</td><td class="num">120&#8211;180 FTE</td><td class="neg num">WEAK</td></tr>
+        <tr><td class="num">3</td><td>Saving on consolidation</td><td class="num">25%</td><td class="neg num">WEAK</td></tr>
+        <tr><td class="num">4</td><td>One-time investment</td><td class="num">₹9 Cr</td><td class="num">MED</td></tr>
+        <tr><td class="num">5</td><td>Overhead annualisation</td><td class="num">9M × 4/3</td><td class="num">MED</td></tr>
+        <tr><td class="num">6</td><td>Ramp to steady state</td><td class="num">12&#8211;18 mo</td><td class="num">MED</td></tr>
+      </table>
+      <div class="chart-wrap">
+        <div class="chart-title">Sensitivity: annual saving vs. the 15% assumption</div>
+        <svg class="chart-svg" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet">
+          <line x1="15" y1="130" x2="290" y2="130" stroke="#2a4d75" stroke-width="1"/>
+          <rect x="50" y="30" width="60" height="100" fill="#0085ca"/>
+          <text x="80" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">₹11 Cr</text>
+          <text x="80" y="146" text-anchor="middle" font-size="10" fill="#93aec8">At 15% (base case)</text>
+          <rect x="180" y="67" width="60" height="63" fill="#e2564b"/>
+          <text x="210" y="59" text-anchor="middle" font-size="13" font-weight="bold" fill="#e2564b">~₹7 Cr</text>
+          <text x="210" y="146" text-anchor="middle" font-size="10" fill="#93aec8">At 10% (downside)</text>
+        </svg>
+      </div>
+    </div>
+    <div class="callout gold">
+      <b>Sensitivity:</b> at 10% rather than 15% offshorable share, saving falls from ₹11 Cr to
+      ~₹7 Cr and payback extends beyond 30 months — at which point the recommendation should be
+      revisited, not defended.
+    </div>
+  </div>
+  <div class="footer">This register is the honest limit of what public information supports — the work plan for the first 90 days, not a disclaimer.</div>
+  <div class="pagenum">18</div>
+</section>
+
+<!-- ============ 19 · A5 SOURCES ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A5 · Sources</div>
+    <div class="title serif">Every figure traces to one of these four sources —
+      <b>or is flagged as an assumption</b></div>
+  </div>
+  <div class="body">
+    <table>
+      <tr><th style="width:10%;">Ref</th><th style="width:34%;">Source</th><th style="width:14%;">Date</th><th>Used for</th></tr>
+      <tr class="hoverable"><td><span class="chip gold">IP</span></td><td>Jash Engineering Investor Presentation, Q3/9M FY26 (BSE filing)</td><td>Feb 2026</td><td>Income statement, subsidiary performance, order book, revenue mix</td></tr>
+      <tr class="hoverable"><td><span class="chip gold">SC</span></td><td>screener.in — consolidated annual P&amp;L, FY22&#8211;FY26</td><td>FY26</td><td>Five-year sales/expenses/profit series</td></tr>
+      <tr class="hoverable"><td><span class="chip gold">VR</span></td><td>Value Research — Jash Engineering FY26 commentary</td><td>FY26</td><td>Overhead commentary, FY27 guidance, order book</td></tr>
+      <tr class="hoverable"><td><span class="chip gold">JI</span></td><td>jashindia.com — corporate site</td><td>Current</td><td>Subsidiary list, manufacturing units, markets</td></tr>
+    </table>
+    <div class="card" style="flex:1;">
+      <h4>The overhead derivation, in full</h4>
+      <p style="font-size:11px; line-height:1.7; letter-spacing:.2px;">
+        Overhead = Gross profit − EBITDA<br>
+        9M FY25: 265.32 − 76.08 = 189.24 &nbsp;&nbsp; 9M FY26: 252.53 − 44.73 = 207.80<br>
+        Increase: +18.56 Cr = +9.8% (vs revenue +2.5%)<br>
+        EBITDA fall 31.35 = gross-profit erosion 12.79 (41%) + overhead growth 18.56 (59%) — reconciles exactly
+      </p>
+    </div>
+  </div>
+  <div class="footer">All ₹ figures as reported by the company. USD/GBP equivalents shown where the company disclosed them.</div>
+  <div class="pagenum">19</div>
+</section>
+
+<!-- ============ 20 · A6 GLOSSARY + A8 NOTE ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Appendix A6 · Glossary</div>
+    <div class="title serif">Ten terms this document depends on</div>
+  </div>
+  <div class="body">
+    <table style="flex:1;">
+      <tr><th style="width:24%;">Term</th><th>Meaning</th></tr>
+      <tr><td class="num">Capability centre / captive</td><td>An offshore office a company owns and staffs itself. Called "GCC" in the market — avoided here (see note below)</td></tr>
+      <tr><td class="num">Outsourcing / BPO</td><td>Paying a vendor to perform the work with its own staff and management</td></tr>
+      <tr><td class="num">BOT</td><td>A vendor builds and runs the centre, then transfers ownership after 2&#8211;3 years</td></tr>
+      <tr><td class="num">FTE</td><td>Full-time equivalent — one person's full workload</td></tr>
+      <tr><td class="num">Tower</td><td>A discrete block of support work treated as one transferable unit</td></tr>
+      <tr><td class="num">Cost-plus / markup</td><td>A vendor's pricing basis: delivery cost plus 25&#8211;45% margin</td></tr>
+      <tr><td class="num">Run-rate</td><td>Annualised steady-state cost or saving, excluding transition costs</td></tr>
+      <tr><td class="num">Ramp</td><td>The rate at which the centre fills with productive headcount</td></tr>
+    </table>
+    <div class="callout gold">
+      <b>A8 — acronym note:</b> Jash's own investor deck uses "GCC" to mean the Gulf Cooperation
+      Council (Saudi plant commentary), not Global Capability Centre — hence this document says
+      "capability centre" throughout, to avoid the collision if it ever circulates alongside
+      Jash's own materials.
+    </div>
+  </div>
+  <div class="footer">End of document. Public-information illustration. Jash Engineering has announced no capability-centre programme and is not a client.</div>
+  <div class="pagenum">20</div>
+</section>
+
+</div>
+<script>
+(function(){
+  // Mark each slide's top-level content blocks as reveal targets, staggered.
+  // transform/opacity only — no reflow, no layout shift.
+  document.querySelectorAll('.slide').forEach(function(slide){
+    var container = slide.querySelector('.body') || slide.querySelector('.cover') || slide.querySelector('.divider');
+    if (!container) return;
+    Array.prototype.forEach.call(container.children, function(el, i){
+      el.classList.add('reveal');
+      el.style.transitionDelay = Math.min(i * 45, 220) + 'ms';
+    });
+  });
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return; // CSS already neutralizes .reveal in this case — nothing to observe
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.2});
+
+  document.querySelectorAll('.slide').forEach(function(s){ io.observe(s); });
+
+  // First slide is visible on load with no scroll trigger — reveal it immediately.
+  var first = document.querySelector('.slide');
+  if (first) {
+    first.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>
