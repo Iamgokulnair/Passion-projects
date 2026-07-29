@@ -8,66 +8,88 @@
      A&M DARK THEME — real Alvarez & Marsal brand palette:
      #01244a dark blue · #0085ca bright blue · #5c8bb4 medium blue
      #dee7f0 light blue-gray · #646464 gray. Full dark canvas.
-     Times New Roman for TITLES ONLY. Arial for everything else.
-     Canvas: 1280x720px = 16:9 = 13.333"x7.5" @96dpi.
+     Georgia for TITLES ONLY. Arial for everything else.
+     Depth via gradients/shadows, not rounded corners — sharp,
+     executive, MBB-grade. Canvas: 1280x720px = 16:9 @96dpi.
      ============================================================ */
   :root{
     --bg:#01244a; --bg-deep:#001830; --panel:#0d3a63; --panel-hi:#0f4577;
-    --line:#2a4d75; --white:#FFFFFF;
+    --panel-2:#0a3257; --panel-hi-2:#0c3d68;
+    --line:#2a4d75; --line-hi:#3a628f; --white:#FFFFFF;
     --text:#dee7f0; --text-dim:#93aec8; --text-faint:#7086a0;
     --accent:#0085ca; --accent-text:#5fc2f0; --accent2:#5c8bb4;
-    --red:#e2564b; --green:#34b56a;
+    --red:#e2564b; --red-hi:#f0776d; --green:#34b56a; --green-hi:#4fd489;
+    /* gradients — subtle diagonal sheen, same-hue depth, not decoration for its own sake */
+    --grad-panel:linear-gradient(155deg, var(--panel) 0%, var(--panel-2) 100%);
+    --grad-panel-hi:linear-gradient(155deg, var(--panel-hi) 0%, var(--panel-hi-2) 100%);
+    --grad-topbar:linear-gradient(180deg, #002140 0%, var(--bg-deep) 100%);
+    --shadow-card:0 8px 20px -8px rgba(0,8,20,.55), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-card-hi:0 8px 22px -6px rgba(0,133,202,.28), inset 0 1px 0 rgba(255,255,255,.06);
+    --shadow-lift:0 10px 24px -10px rgba(0,8,20,.6);
     /* type scale — Arial (all body/data) */
     --t-body:12px; --t-td:12px; --t-th:10px; --t-caption:9px; --t-kicker:10px;
     --t-bignum:28px; --t-eyebrow:9px;
-    /* type scale — Times New Roman (titles only) */
+    /* type scale — Georgia (titles only) */
     --t-slidetitle:20px; --t-covertitle:34px; --t-dividertitle:30px; --t-governing:15.5px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:#00101f; font-family:Arial,Helvetica,sans-serif; color:var(--text); padding:24px 0;}
   .deck{display:flex; flex-direction:column; align-items:center; gap:24px;}
-  .slide{width:1280px; height:720px; background:var(--bg); position:relative; overflow:hidden; flex-shrink:0;}
-  .serif{font-family:"Times New Roman", Times, serif;}
+  .slide{width:1280px; height:720px; position:relative; overflow:hidden; flex-shrink:0;
+    display:flex; flex-direction:column;
+    background:
+      radial-gradient(1200px 620px at 10% -12%, rgba(0,133,202,.10), transparent 55%),
+      radial-gradient(900px 520px at 104% 112%, rgba(95,194,240,.05), transparent 52%),
+      var(--bg);
+  }
+  .slide::before{content:''; position:absolute; top:0; left:0; right:0; height:3px; z-index:2;
+    background:linear-gradient(90deg, var(--accent) 0%, var(--accent-text) 50%, var(--accent) 100%);}
+  .serif{font-family:Georgia, "Times New Roman", Times, serif;}
 
-  .topbar{background:var(--bg-deep); height:96px; padding:18px 48px 0 48px; border-bottom:1px solid var(--line);}
+  /* topbar/body/footer form a robust flex stack (not fixed-height boxes) so a long-wrapping
+     title (e.g. slide 3) grows the topbar instead of spilling into the body/footer below —
+     the root cause of the old layout's occasional overlap. */
+  .topbar{background:var(--grad-topbar); min-height:96px; padding:18px 48px 14px 48px; border-bottom:1px solid var(--line); position:relative; flex:0 0 auto;}
   .eyebrow{color:var(--text-dim); font-size:var(--t-eyebrow); letter-spacing:1.5px; text-transform:uppercase; font-weight:bold;}
-  .title{color:var(--white); font-size:var(--t-slidetitle); font-weight:bold; line-height:1.28; margin-top:4px; max-width:1180px;}
+  .title{color:var(--white); font-size:var(--t-slidetitle); font-weight:bold; line-height:1.3; margin-top:5px; max-width:1180px;}
   .title b{color:var(--accent-text);}
-  .body{padding:22px 48px 0 48px; height:552px; position:relative; display:flex; flex-direction:column; gap:14px;}
-  .footer{position:absolute; bottom:0; left:0; right:0; height:64px; border-top:1px solid var(--line);
-          padding:9px 48px; font-size:var(--t-caption); color:var(--text-faint); line-height:1.4;}
+  .body{padding:20px 48px 18px 48px; flex:1 1 auto; min-height:0; position:relative; display:flex; flex-direction:column; gap:14px; overflow:hidden;}
+  .footer{flex:0 0 auto; border-top:1px solid var(--line);
+          padding:9px 48px; font-size:var(--t-caption); color:var(--text-faint); line-height:1.4;
+          background:linear-gradient(180deg, transparent 0%, rgba(0,16,31,.55) 100%);}
   .footer b{color:var(--accent-text);}
   .pagenum{position:absolute; bottom:9px; right:16px; font-size:var(--t-caption); color:var(--text-faint);}
 
-  table{border-collapse:collapse; width:100%;}
+  table{border-collapse:collapse; width:100%; box-shadow:var(--shadow-card);}
   th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top; color:var(--text);}
-  th{background:var(--bg-deep); color:var(--white); font-size:var(--t-th); text-transform:uppercase; letter-spacing:.4px; font-weight:bold;}
-  td{font-size:var(--t-td);}
+  th{background:linear-gradient(180deg, #002748, var(--bg-deep)); color:var(--white); font-size:var(--t-th); text-transform:uppercase; letter-spacing:.4px; font-weight:bold;}
+  td{font-size:var(--t-td); background:rgba(13,58,99,.28);}
   .num{font-weight:bold; color:var(--white);}
-  .pos{color:var(--green);} .neg{color:var(--red);}
+  .pos{color:var(--green-hi);} .neg{color:var(--red-hi);}
 
-  .callout{background:var(--panel); border-left:4px solid var(--accent2); padding:13px 17px; font-size:var(--t-body); line-height:1.55; color:var(--text);}
-  .callout.gold{border-left-color:var(--accent); background:var(--panel-hi);}
+  .callout{background:var(--grad-panel); border-left:4px solid var(--accent2); padding:13px 17px; font-size:var(--t-body); line-height:1.55; color:var(--text); box-shadow:var(--shadow-card);}
+  .callout.gold{border-left-color:var(--accent); background:var(--grad-panel-hi); box-shadow:var(--shadow-card-hi);}
   .kicker{font-size:var(--t-kicker); font-weight:bold; color:var(--accent-text); text-transform:uppercase; letter-spacing:.5px;}
-  .illus{display:inline-block; background:var(--panel-hi); color:var(--accent-text); font-size:8px; font-weight:bold;
+  .illus{display:inline-block; background:var(--grad-panel-hi); color:var(--accent-text); font-size:8px; font-weight:bold;
          letter-spacing:.5px; padding:2px 5px; border:1px solid var(--line);}
 
-  .governing{background:var(--bg-deep); border:2px solid var(--accent); padding:18px 26px; position:relative;}
-  .governing .tag{position:absolute; top:-11px; left:24px; background:var(--accent); color:var(--white);
-    font-size:9px; font-weight:bold; letter-spacing:1px; padding:3px 10px;}
+  .governing{background:linear-gradient(155deg, #002140, var(--bg-deep)); border:2px solid var(--accent); padding:18px 26px; position:relative; box-shadow:0 12px 28px -12px rgba(0,133,202,.35);}
+  .governing::after{content:''; position:absolute; inset:0; border:1px solid rgba(95,194,240,.18); pointer-events:none;}
+  .governing .tag{position:absolute; top:-11px; left:24px; background:linear-gradient(90deg,var(--accent),#0099e0); color:var(--white);
+    font-size:9px; font-weight:bold; letter-spacing:1px; padding:3px 10px; box-shadow:0 3px 8px rgba(0,133,202,.4);}
   .governing p{color:var(--white); font-size:var(--t-governing); line-height:1.5; font-style:italic;}
   .governing p b{color:var(--accent-text); font-style:normal;}
 
-  .sowhat{background:var(--panel-hi); border:1px solid var(--accent); border-left-width:4px; padding:9px 14px; font-size:var(--t-body); line-height:1.5; color:var(--text);}
+  .sowhat{background:var(--grad-panel-hi); border:1px solid var(--accent); border-left-width:4px; padding:9px 14px; font-size:var(--t-body); line-height:1.5; color:var(--text); box-shadow:var(--shadow-card-hi);}
   .sowhat b{font-size:8px; letter-spacing:.4px; text-transform:uppercase; color:var(--accent-text); margin-right:6px;}
 
-  .bignum{font-size:var(--t-bignum); font-weight:bold; color:var(--accent-text); line-height:1;}
-  .bignum.pos{color:var(--green);}
+  .bignum{font-size:var(--t-bignum); font-weight:bold; color:var(--accent-text); line-height:1; font-variant-numeric:tabular-nums;}
+  .bignum.pos{color:var(--green-hi);}
   .caption{font-size:var(--t-caption); color:var(--text-faint); margin-top:3px; line-height:1.4;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
   .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;}
-  .card{background:var(--panel); border:1px solid var(--line); padding:13px 16px;}
-  .card.gold{background:var(--panel-hi); border-color:var(--accent);}
+  .card{background:var(--grad-panel); border:1px solid var(--line); padding:13px 16px; box-shadow:var(--shadow-card); position:relative;}
+  .card.gold{background:var(--grad-panel-hi); border-color:var(--accent); box-shadow:var(--shadow-card-hi);}
   .card h4{font-size:var(--t-kicker); color:var(--accent-text); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; font-weight:bold;}
   .card p{font-size:var(--t-body); line-height:1.5; color:var(--text);}
   ul{padding-left:16px; font-size:var(--t-body); line-height:1.55; color:var(--text);}
@@ -79,29 +101,30 @@
   .cover .cdisc{position:absolute; bottom:56px; left:64px; right:64px; border-top:1px solid var(--line);
                 padding-top:14px; color:var(--text-faint); font-size:10.5px; line-height:1.6;}
 
-  .divider{background:var(--bg-deep); height:720px; padding:280px 64px 0 64px;}
+  .divider{background:var(--bg-deep); height:720px; padding:280px 64px 0 64px; position:relative;}
   .divider .dnum{color:var(--accent-text); font-size:13px; font-weight:bold; letter-spacing:3px;}
   .divider .dtitle{color:var(--white); font-size:var(--t-dividertitle); font-weight:bold; margin-top:12px;}
   .divider .dsub{color:var(--text-dim); font-size:13px; margin-top:14px; max-width:820px; line-height:1.6;}
 
-  .chart-wrap{background:var(--panel); border:1px solid var(--line); padding:14px 18px; flex:1; display:flex; flex-direction:column;}
+  .chart-wrap{background:var(--grad-panel); border:1px solid var(--line); padding:14px 18px; flex:1; display:flex; flex-direction:column; box-shadow:var(--shadow-card); position:relative;}
+  .chart-wrap::before{content:''; position:absolute; top:0; left:0; width:34px; height:2px; background:var(--accent-text);}
   .chart-title{font-size:var(--t-kicker); font-weight:bold; color:var(--accent-text); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;}
   .chart-svg{flex:1; width:100%;}
   svg text{font-family:Arial,Helvetica,sans-serif;}
 
   .badge-row{display:flex; gap:14px;}
-  .badge{flex:1; border:1px solid var(--line); background:var(--panel); padding:12px 14px; text-align:center;}
-  .badge.win{background:var(--panel-hi); border-color:var(--accent);}
-  .badge .bmark{font-size:20px; font-weight:bold; margin-bottom:4px; color:var(--text);}
+  .badge{flex:1; border:1px solid var(--line); background:var(--grad-panel); padding:12px 14px; text-align:center; box-shadow:var(--shadow-card);}
+  .badge.win{background:var(--grad-panel-hi); border-color:var(--accent); box-shadow:var(--shadow-card-hi);}
+  .badge .bmark{font-size:20px; font-weight:bold; margin-bottom:4px; color:var(--text); font-variant-numeric:tabular-nums;}
   .badge.win .bmark{color:var(--accent-text);}
   .badge .blabel{font-size:11.5px; font-weight:bold; color:var(--white);}
   .badge .bsub{font-size:10px; color:var(--text-dim); margin-top:3px;}
 
   .recap{display:flex; gap:14px; align-items:stretch;}
-  .recap .rnode{flex:1; border:1px solid var(--line); background:var(--panel); padding:10px 12px; position:relative;}
-  .recap .rnode.here{background:var(--panel-hi); border-color:var(--accent);}
-  .recap .rnum{width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--white);
-    font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:6px;}
+  .recap .rnode{flex:1; border:1px solid var(--line); background:var(--grad-panel); padding:10px 12px; position:relative; box-shadow:var(--shadow-card);}
+  .recap .rnode.here{background:var(--grad-panel-hi); border-color:var(--accent); box-shadow:var(--shadow-card-hi);}
+  .recap .rnum{width:22px; height:22px; border-radius:50%; background:linear-gradient(155deg,#00a8f0,var(--accent)); color:var(--white);
+    font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:6px; box-shadow:0 3px 8px rgba(0,133,202,.4);}
   .recap .rnode.here .rnum{background:var(--accent-text); color:var(--bg-deep);}
   .recap .rtitle{font-size:11px; font-weight:bold; color:var(--white);}
   .recap .rsub{font-size:9.5px; color:var(--text-dim); margin-top:2px;}
@@ -131,23 +154,23 @@
      deliberately varied composition so each slide reads as
      designed, not templated. Same colour tokens as everywhere else.
      ============================================================ */
-  .split{display:grid; grid-template-columns:1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden;}
-  .split .pane{padding:18px 22px; display:flex; flex-direction:column; justify-content:center; gap:8px;}
-  .split .pane.fail{background:linear-gradient(180deg, rgba(226,86,75,.10), transparent 70%); border-right:1px solid var(--line);}
-  .split .pane.win{background:linear-gradient(180deg, rgba(0,133,202,.14), transparent 70%);}
+  .split{display:grid; grid-template-columns:1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden; box-shadow:var(--shadow-card);}
+  .split .pane{padding:18px 22px; display:flex; flex-direction:column; justify-content:center; gap:8px; position:relative;}
+  .split .pane.fail{background:linear-gradient(155deg, rgba(226,86,75,.14), rgba(0,16,31,.4) 75%); border-right:1px solid var(--line);}
+  .split .pane.win{background:linear-gradient(155deg, rgba(0,133,202,.18), rgba(0,16,31,.4) 75%);}
   .pane-label{font-size:10.5px; font-weight:bold; text-transform:uppercase; letter-spacing:1.2px;}
-  .pane-label.fail{color:var(--red);}
+  .pane-label.fail{color:var(--red-hi);}
   .pane-label.win{color:var(--accent-text);}
   .pane-mark{font-size:30px; font-weight:bold; line-height:1;}
-  .pane-mark.fail{color:var(--red);}
+  .pane-mark.fail{color:var(--red-hi);}
   .pane-mark.win{color:var(--accent-text);}
   .pane p{font-size:11.5px; line-height:1.55; color:var(--text);}
 
-  .specs{display:grid; grid-template-columns:1fr 1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden;}
-  .specs .spec{padding:14px 16px; display:flex; flex-direction:column; gap:9px; border-right:1px solid var(--line);}
+  .specs{display:grid; grid-template-columns:1fr 1fr 1fr; flex:1; border:1px solid var(--line); overflow:hidden; box-shadow:var(--shadow-card);}
+  .specs .spec{padding:14px 16px; display:flex; flex-direction:column; gap:9px; border-right:1px solid var(--line); background:rgba(13,58,99,.22);}
   .specs .spec:last-child{border-right:none;}
-  .specs .spec.win{background:var(--panel-hi);}
-  .spec-name{font-family:"Times New Roman",Times,serif; font-size:16px; font-weight:bold; color:var(--white);
+  .specs .spec.win{background:var(--grad-panel-hi);}
+  .spec-name{font-family:Georgia,"Times New Roman",Times,serif; font-size:16px; font-weight:bold; color:var(--white);
     padding-bottom:8px; border-bottom:1px solid var(--line);}
   .spec-name.win{color:var(--accent-text);}
   .spec-row .k{display:block; color:var(--text-faint); font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px;}
@@ -158,9 +181,9 @@
   .testband{display:flex; align-items:stretch; border:1px solid var(--line); border-top:none; flex:1;}
   .testband:first-child{border-top:1px solid var(--line);}
   .testband .tword{width:130px; flex-shrink:0; display:flex; align-items:center; justify-content:center; text-align:center;
-    font-family:"Times New Roman",Times,serif; font-size:24px; font-weight:bold; color:var(--accent-text);
-    background:var(--bg-deep); border-right:2px solid var(--accent); padding:8px;}
-  .testband .tbody{flex:1; padding:14px 24px; display:flex; align-items:center; gap:28px;}
+    font-family:Georgia,"Times New Roman",Times,serif; font-size:24px; font-weight:bold; color:var(--accent-text);
+    background:linear-gradient(155deg,#002140,var(--bg-deep)); border-right:2px solid var(--accent); padding:8px;}
+  .testband .tbody{flex:1; padding:14px 24px; display:flex; align-items:center; gap:28px; background:rgba(13,58,99,.16);}
   .testband .tq{flex:0 0 34%; font-size:11.5px; color:var(--text-dim); line-height:1.5;}
   .testband .ta{flex:1; font-size:12.5px; color:var(--text); line-height:1.5;}
 
@@ -168,7 +191,7 @@
   .rail .rail-side{border-right:1px solid var(--line); padding-right:20px; display:flex; flex-direction:column; justify-content:center; gap:10px;}
   .rail .rail-main{padding-left:22px; display:flex; flex-direction:column; justify-content:center; gap:12px;}
 
-  .bignum-anchor{font-family:"Times New Roman",Times,serif; font-weight:bold; color:var(--accent);
+  .bignum-anchor{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; color:var(--accent);
     opacity:.16; line-height:.85; position:absolute; pointer-events:none; user-select:none;}
 
   /* ============================================================
@@ -186,9 +209,9 @@
   }
 
   .chip-row{display:flex; flex-wrap:wrap; gap:8px;}
-  .chip{display:inline-flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line);
-    padding:6px 11px; font-size:10.5px; font-weight:bold; color:var(--text); white-space:nowrap;}
-  .chip.gold{background:var(--panel-hi); border-color:var(--accent); color:var(--accent-text);}
+  .chip{display:inline-flex; align-items:center; gap:6px; background:var(--grad-panel); border:1px solid var(--line);
+    padding:6px 11px; font-size:10.5px; font-weight:bold; color:var(--text); white-space:nowrap; box-shadow:0 3px 8px -3px rgba(0,8,20,.5);}
+  .chip.gold{background:var(--grad-panel-hi); border-color:var(--accent); color:var(--accent-text); box-shadow:0 3px 10px -3px rgba(0,133,202,.4);}
   .chip .n{color:var(--accent-text); font-weight:bold;}
   .chip.gold .n{color:var(--white);}
 
@@ -204,13 +227,13 @@
   .check-item .ic{margin-top:2px;}
   .check-item b{color:var(--white);}
 
-  .gauge{position:relative; height:26px; background:var(--bg-deep); border:1px solid var(--line); margin:4px 0;}
+  .gauge{position:relative; height:26px; background:var(--bg-deep); border:1px solid var(--line); margin:4px 0; box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
   .gauge .zone{position:absolute; top:0; bottom:0;}
-  .gauge .zone.fail{background:rgba(226,86,75,.30); left:0;}
-  .gauge .zone.mid{background:rgba(92,139,180,.30);}
-  .gauge .zone.win{background:rgba(52,181,106,.30);}
+  .gauge .zone.fail{background:linear-gradient(90deg, rgba(226,86,75,.38), rgba(226,86,75,.20)); left:0;}
+  .gauge .zone.mid{background:linear-gradient(90deg, rgba(92,139,180,.20), rgba(92,139,180,.38));}
+  .gauge .zone.win{background:linear-gradient(90deg, rgba(52,181,106,.20), rgba(52,181,106,.42));}
   .gauge .marker{position:absolute; top:-5px; bottom:-5px; width:3px; background:var(--accent-text);
-    box-shadow:0 0 6px var(--accent-text);}
+    box-shadow:0 0 8px var(--accent-text), 0 0 2px var(--white);}
   .gauge .marker .mlabel{position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:9px;
     font-weight:bold; color:var(--accent-text); white-space:nowrap;}
   .gauge-scale{display:flex; justify-content:space-between; font-size:8.5px; color:var(--text-faint); margin-top:2px;}
@@ -218,7 +241,7 @@
   .delta-bar{display:flex; flex-direction:column; gap:3px; margin-top:6px;}
   .delta-bar .drow{display:flex; align-items:center; gap:7px;}
   .delta-bar .dlabel{width:52px; font-size:9px; color:var(--text-faint); flex-shrink:0;}
-  .delta-bar .dtrack{flex:1; height:11px; background:var(--bg-deep); position:relative;}
+  .delta-bar .dtrack{flex:1; height:11px; background:var(--bg-deep); position:relative; box-shadow:inset 0 1px 3px rgba(0,0,0,.4);}
   .delta-bar .dfill{height:100%;}
   .delta-bar .dval{width:56px; font-size:9.5px; font-weight:bold; text-align:right; flex-shrink:0;}
 
@@ -226,21 +249,21 @@
   .mini-donut-legend{display:flex; flex-direction:column; gap:5px;}
   .mini-donut-legend .lrow{display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--text);}
   .mini-donut-legend .swatch{width:9px; height:9px; flex-shrink:0; display:inline-block;}
-  .mini-donut-legend .lval{margin-left:auto; font-weight:bold; color:var(--white);}
+  .mini-donut-legend .lval{margin-left:auto; font-weight:bold; color:var(--white); font-variant-numeric:tabular-nums;}
 
   .dot-timeline{display:flex; align-items:center; gap:0;}
   .dot-timeline .dt-item{display:flex; flex-direction:column; align-items:center; flex:1; position:relative;}
   .dot-timeline .dt-item:not(:last-child)::after{content:''; position:absolute; top:5px; left:56%; width:88%;
-    height:2px; background:var(--line);}
-  .dot-timeline .dt-dot{width:11px; height:11px; border-radius:50%; background:var(--accent); border:2px solid var(--bg-deep);
-    z-index:1;}
+    height:2px; background:linear-gradient(90deg, var(--line), var(--accent2));}
+  .dot-timeline .dt-dot{width:11px; height:11px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #4fd4ff, var(--accent)); border:2px solid var(--bg-deep);
+    z-index:1; box-shadow:0 0 0 1px var(--accent), 0 2px 6px rgba(0,133,202,.5);}
   .dot-timeline .dt-label{font-size:8.5px; color:var(--text-dim); margin-top:5px; text-align:center; line-height:1.3;}
 
   .stepper{display:flex; gap:12px;}
-  .stepper .snode{flex:1; border:1px solid var(--line); background:var(--panel); padding:9px 11px; position:relative;}
-  .stepper .snode.win{background:var(--panel-hi); border-color:var(--accent);}
-  .stepper .snum{width:20px; height:20px; border-radius:50%; background:var(--accent); color:var(--white);
-    font-size:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:5px;}
+  .stepper .snode{flex:1; border:1px solid var(--line); background:var(--grad-panel); padding:9px 11px; position:relative; box-shadow:var(--shadow-card);}
+  .stepper .snode.win{background:var(--grad-panel-hi); border-color:var(--accent); box-shadow:var(--shadow-card-hi);}
+  .stepper .snum{width:20px; height:20px; border-radius:50%; background:linear-gradient(155deg,#00a8f0,var(--accent)); color:var(--white);
+    font-size:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; margin-bottom:5px; box-shadow:0 3px 8px rgba(0,133,202,.4);}
   .stepper .stitle{font-size:10.5px; font-weight:bold; color:var(--white);}
   .stepper .ssub{font-size:9px; color:var(--text-dim); margin-top:2px; line-height:1.3;}
 
@@ -252,6 +275,46 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00a8f0"/><stop offset="100%" stop-color="#0072ac"/>
+    </linearGradient>
+    <linearGradient id="g-blue2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#78a4cc"/><stop offset="100%" stop-color="#4a7398"/>
+    </linearGradient>
+    <linearGradient id="g-lightblue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8fd8ff"/><stop offset="100%" stop-color="#4fb2e8"/>
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3a5f82"/><stop offset="100%" stop-color="#264868"/>
+    </linearGradient>
+    <linearGradient id="g-navy2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3a6bc0"/><stop offset="100%" stop-color="#1f3f80"/>
+    </linearGradient>
+    <linearGradient id="g-slate3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7b9bd0"/><stop offset="100%" stop-color="#516e9c"/>
+    </linearGradient>
+    <linearGradient id="g-red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0776d"/><stop offset="100%" stop-color="#c8382e"/>
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4fd489"/><stop offset="100%" stop-color="#279253"/>
+    </linearGradient>
+    <linearGradient id="g-grey" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8aa4bc"/><stop offset="100%" stop-color="#5c7690"/>
+    </linearGradient>
+    <linearGradient id="g-track-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0a2c4c"/><stop offset="100%" stop-color="#052038"/>
+    </linearGradient>
+    <filter id="barShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000a17" flood-opacity="0.55"/>
+    </filter>
+    <filter id="dotGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#0085ca" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+</svg>
 <div class="deck">
 
 <!-- ============ 1 · COVER ============ -->
@@ -321,21 +384,25 @@
         <h4>The binding risk</h4>
         <div class="chip-row" style="margin-bottom:6px;"><span class="chip"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="n">20 mo</span> ramp</span></div>
         <p style="font-size:11px;">The ramp, not the model choice — priced and gated on
-          slide 12.</p>
+          slide 14.</p>
       </div>
     </div>
     <div class="chart-wrap" style="flex:1; min-height:0;">
       <div class="chart-title">The financial case, in one picture (₹Cr/yr) <span class="illus">ILLUSTRATIVE</span></div>
       <svg class="chart-svg" viewBox="0 0 700 110" preserveAspectRatio="xMidYMid meet">
         <line x1="15" y1="90" x2="685" y2="90" stroke="#2a4d75" stroke-width="1"/>
-        <rect x="40" y="10" width="130" height="80" fill="#0085ca"/>
+        <rect x="40" y="10" width="130" height="80" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="40" y="10" width="130" height="2" fill="#bfe6ff" opacity=".5"/>
         <text x="105" y="106" text-anchor="middle" font-size="11" fill="#93aec8">Today: ₹42 Cr</text>
         <text x="105" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">₹42</text>
-        <line x1="170" y1="20" x2="230" y2="20" stroke="#2a4d75" stroke-dasharray="3,2"/>
-        <rect x="230" y="20" width="130" height="40" fill="#34b56a"/>
-        <text x="295" y="14" text-anchor="middle" font-size="12" font-weight="bold" fill="#34b56a">&#8722;₹11 Cr saving</text>
-        <line x1="360" y1="60" x2="420" y2="60" stroke="#2a4d75" stroke-dasharray="3,2"/>
-        <rect x="420" y="30" width="130" height="60" fill="#5c8bb4"/>
+        <path d="M170 20 L230 20" stroke="#3a628f" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <rect x="230" y="20" width="130" height="40" fill="url(#g-green)" filter="url(#barShadow)"/>
+        <rect x="230" y="20" width="130" height="2" fill="#baf5cf" opacity=".55"/>
+        <rect x="238" y="0" width="114" height="16" fill="#062015" stroke="#34b56a" stroke-width="1"/>
+        <text x="295" y="12" text-anchor="middle" font-size="11" font-weight="bold" fill="#4fd489">&#8722;₹11 Cr saving</text>
+        <path d="M360 60 L420 60" stroke="#3a628f" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <rect x="420" y="30" width="130" height="60" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="420" y="30" width="130" height="2" fill="#dbe9f4" opacity=".5"/>
         <text x="485" y="106" text-anchor="middle" font-size="11" fill="#93aec8">Steady state: ₹31 Cr</text>
         <text x="485" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">₹31</text>
         <line x1="550" y1="90" x2="600" y2="90" stroke="#2a4d75" stroke-width="1" stroke-dasharray="3,2"/>
@@ -372,13 +439,18 @@
         <div class="chart-title">Revenue, FY22 vs FY26 (₹Cr)</div>
         <svg class="chart-svg" viewBox="0 0 320 170" preserveAspectRatio="xMidYMid meet">
           <line x1="20" y1="140" x2="300" y2="140" stroke="#2a4d75" stroke-width="1"/>
-          <rect x="60" y="80" width="70" height="60" fill="#3a5f82"/>
+          <rect x="60" y="80" width="70" height="60" fill="url(#g-slate)" filter="url(#barShadow)"/>
+          <rect x="60" y="80" width="70" height="2" fill="#a9c2d8" opacity=".5"/>
           <text x="95" y="72" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">368</text>
           <text x="95" y="158" text-anchor="middle" font-size="11" fill="#93aec8">FY22</text>
-          <rect x="190" y="20" width="70" height="120" fill="#0085ca"/>
+          <rect x="190" y="20" width="70" height="120" fill="url(#g-blue)" filter="url(#barShadow)"/>
+          <rect x="190" y="20" width="70" height="2" fill="#bfe6ff" opacity=".55"/>
           <text x="225" y="12" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">736</text>
           <text x="225" y="158" text-anchor="middle" font-size="11" fill="#93aec8">FY26</text>
-          <text x="225" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#5fc2f0">2.00×</text>
+          <path d="M130 66 C155 40, 165 40, 186 26" stroke="#5fc2f0" stroke-width="1.6" fill="none" stroke-dasharray="1,4" stroke-linecap="round"/>
+          <path d="M186 26 l-7 -1 l2 7 z" fill="#5fc2f0"/>
+          <rect x="144" y="42" width="44" height="16" fill="#062031" stroke="#5fc2f0" stroke-width="1"/>
+          <text x="166" y="54" text-anchor="middle" font-size="11" font-weight="bold" fill="#5fc2f0">2.00×</text>
         </svg>
         <div class="caption">Sales doubled exactly — order book is a record ₹923 Cr, 71% outside India.</div>
       </div>
@@ -386,17 +458,18 @@
         <div class="kicker" style="margin-bottom:8px;">Revenue mix, by product</div>
         <div class="mini-donut-wrap">
           <svg width="118" height="118" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#0d3a63" stroke-width="6"/>
-            <g transform="rotate(-90 21 21)">
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#0085ca" stroke-width="6"
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#0a2c4c" stroke-width="6.4"/>
+            <g transform="rotate(-90 21 21)" filter="url(#barShadow)">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="url(#g-blue)" stroke-width="6.4"
                 stroke-dasharray="60.8 39.2" stroke-dashoffset="0"/>
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#5c8bb4" stroke-width="6"
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="url(#g-blue2)" stroke-width="6.4"
                 stroke-dasharray="15.5 84.5" stroke-dashoffset="-60.8"/>
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#5fc2f0" stroke-width="6"
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="url(#g-lightblue)" stroke-width="6.4"
                 stroke-dasharray="13.4 86.6" stroke-dashoffset="-76.3"/>
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#93aec8" stroke-width="6"
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="url(#g-grey)" stroke-width="6.4"
                 stroke-dasharray="10.3 89.7" stroke-dashoffset="-89.7"/>
             </g>
+            <circle cx="21" cy="21" r="12.4" fill="#052038"/>
             <text x="21" y="19.5" text-anchor="middle" font-size="6.5" font-weight="bold" fill="#fff">Product</text>
             <text x="21" y="26" text-anchor="middle" font-size="5" fill="#93aec8">mix</text>
           </svg>
@@ -426,9 +499,9 @@
 <!-- ============ 4 · THE SINGLE PROBLEM — with growth-rate chart ============ -->
 <section class="slide">
   <div class="topbar">
-    <div class="eyebrow">The Problem</div>
-    <div class="title serif">The support work behind a record order book has to scale
-      <b>without the cost base scaling with it again</b></div>
+    <div class="eyebrow">The Problem &amp; The Decision</div>
+    <div class="title serif">Outsource it, build it with a partner, or own it outright —
+      <b>Jash must pick one route and defend not picking the other two</b></div>
   </div>
   <div class="body">
     <div class="callout">
@@ -443,11 +516,13 @@
         <div class="chart-title">9M FY26 growth rates</div>
         <svg class="chart-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid meet">
           <line x1="20" y1="120" x2="300" y2="120" stroke="#2a4d75" stroke-width="1"/>
-          <rect x="60" y="95" width="70" height="25" fill="#0085ca"/>
+          <rect x="60" y="95" width="70" height="25" fill="url(#g-blue)" filter="url(#barShadow)"/>
+          <rect x="60" y="95" width="70" height="2" fill="#bfe6ff" opacity=".5"/>
           <text x="95" y="88" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFFFFF">+2.5%</text>
           <text x="95" y="138" text-anchor="middle" font-size="10.5" fill="#93aec8">Revenue</text>
-          <rect x="190" y="20" width="70" height="100" fill="#e2564b"/>
-          <text x="225" y="13" text-anchor="middle" font-size="14" font-weight="bold" fill="#e2564b">+9.8%</text>
+          <rect x="190" y="20" width="70" height="100" fill="url(#g-red)" filter="url(#barShadow)"/>
+          <rect x="190" y="20" width="70" height="2" fill="#ffb9b2" opacity=".55"/>
+          <text x="225" y="13" text-anchor="middle" font-size="14" font-weight="bold" fill="#f0776d">+9.8%</text>
           <text x="225" y="138" text-anchor="middle" font-size="10.5" fill="#93aec8">Overhead</text>
         </svg>
         <div class="caption">Overhead grew nearly 4× faster than revenue.</div>
@@ -456,8 +531,8 @@
         <div class="card"><h4>Where it bites hardest</h4>
           <p style="font-size:10.5px;">Rodney Hunt (US, ~35% of revenue), on a 12% revenue fall:</p>
           <div class="delta-bar">
-            <div class="drow"><span class="dlabel">FY25 PAT</span><div class="dtrack"><div class="dfill" style="width:29%; background:#34b56a;"></div></div><span class="dval pos">+₹6.0 Cr</span></div>
-            <div class="drow"><span class="dlabel">FY26 PAT</span><div class="dtrack"><div class="dfill" style="width:71%; background:#e2564b;"></div></div><span class="dval neg">−₹15.0 Cr</span></div>
+            <div class="drow"><span class="dlabel">FY25 PAT</span><div class="dtrack"><div class="dfill" style="width:29%; background:linear-gradient(90deg,#279253,#4fd489); box-shadow:0 0 6px rgba(52,181,106,.5);"></div></div><span class="dval pos">+₹6.0 Cr</span></div>
+            <div class="drow"><span class="dlabel">FY26 PAT</span><div class="dtrack"><div class="dfill" style="width:71%; background:linear-gradient(90deg,#c8382e,#f0776d); box-shadow:0 0 6px rgba(226,86,75,.5);"></div></div><span class="dval neg">−₹15.0 Cr</span></div>
           </div>
         </div>
         <div class="card"><h4>Why it's accelerating</h4>
@@ -543,8 +618,9 @@
       <div class="testband">
         <div class="tword">Scale</div>
         <div class="tbody">
-          <div class="tq" style="flex:0 0 30%;">Enough FTE to amortise an entity? Below ~30&#8211;50
-            rarely pays back; ~150&#8211;300 is where captive beats a vendor on unit cost</div>
+          <div class="tq" style="flex:0 0 30%;">Three named tiers, not one number: below ~50&#8211;75
+            an entity doesn't beat an EOR; ~150&#8211;300 is where captive beats outsourcing on unit
+            cost; 500+ is where a board expects a full legal entity regardless</div>
           <div class="ta" style="flex:1;">
             <div class="gauge">
               <div class="zone fail" style="width:16.7%;"></div>
@@ -552,9 +628,9 @@
               <div class="zone win" style="left:50%; width:50%;"></div>
               <div class="marker" style="left:50%;"><span class="mlabel">Jash, est. 120&#8211;180</span></div>
             </div>
-            <div class="gauge-scale"><span>0</span><span>50</span><span>150</span><span>300 FTE</span></div>
+            <div class="gauge-scale"><span>0</span><span>50&#8211;75<br><i style="font-style:normal; color:var(--text-faint);">vs EOR</i></span><span>150&#8211;300<br><i style="font-style:normal; color:var(--text-faint);">vs outsourcing</i></span><span>500+ FTE<br><i style="font-style:normal; color:var(--text-faint);">vs full entity</i></span></div>
             <div style="font-size:9.5px; color:var(--text-faint); margin-top:2px;">
-              <span class="illus">ILLUSTRATIVE</span> — borderline, no public headcount exists</div>
+              <span class="illus">ILLUSTRATIVE</span> — Jash clears tier 1 comfortably; tier 2 (vs outsourcing) is the one that binds and is borderline; no public headcount exists to confirm it</div>
           </div>
         </div>
       </div>
@@ -660,11 +736,13 @@
       <div class="chart-title">Incremental entity-setup cost (illustrative, directional)</div>
       <svg class="chart-svg" viewBox="0 0 500 100" preserveAspectRatio="xMidYMid meet">
         <text x="10" y="20" font-size="11" fill="#dee7f0">A new captive, built from scratch</text>
-        <rect x="10" y="30" width="420" height="18" fill="#e2564b"/>
-        <text x="440" y="43" font-size="10.5" fill="#e2564b" font-weight="bold">High</text>
+        <rect x="10" y="30" width="420" height="18" fill="url(#g-red)" filter="url(#barShadow)"/>
+        <rect x="10" y="30" width="420" height="2" fill="#ffcfc9" opacity=".5"/>
+        <text x="440" y="43" font-size="10.5" fill="#f0776d" font-weight="bold">High</text>
         <text x="10" y="72" font-size="11" fill="#dee7f0">Jash, converting Indore + Chennai</text>
-        <rect x="10" y="82" width="20" height="18" fill="#34b56a"/>
-        <text x="40" y="95" font-size="10.5" fill="#34b56a" font-weight="bold">Near zero</text>
+        <rect x="10" y="82" width="20" height="18" fill="url(#g-green)" filter="url(#barShadow)"/>
+        <rect x="10" y="82" width="20" height="2" fill="#baf5cf" opacity=".55"/>
+        <text x="40" y="95" font-size="10.5" fill="#4fd489" font-weight="bold">Near zero</text>
       </svg>
     </div>
     <div class="sowhat"><b>So what</b>This is a conversion of existing capacity, not a greenfield
@@ -687,14 +765,16 @@
       <div class="chart-title">Markup exposure over time, by route (illustrative)</div>
       <svg class="chart-svg" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet">
         <text x="10" y="20" font-size="11" fill="#dee7f0" font-weight="bold">Outsourcing</text>
-        <rect x="150" y="8" width="410" height="16" fill="#e2564b"/>
-        <text x="575" y="20" font-size="10" fill="#e2564b" text-anchor="end" font-weight="bold">25&#8211;45% · forever</text>
+        <rect x="150" y="8" width="410" height="16" fill="url(#g-red)" filter="url(#barShadow)"/>
+        <rect x="150" y="8" width="410" height="2" fill="#ffcfc9" opacity=".5"/>
+        <text x="542" y="20" font-size="10" fill="#FFFFFF" text-anchor="end" font-weight="bold">25&#8211;45% · forever</text>
         <text x="10" y="60" font-size="11" fill="#dee7f0" font-weight="bold">BOT</text>
-        <rect x="150" y="48" width="220" height="16" fill="#5c8bb4"/>
-        <text x="380" y="60" font-size="10" fill="#5c8bb4" font-weight="bold">markup until transfer, yr 2&#8211;3</text>
+        <rect x="150" y="48" width="220" height="16" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="150" y="48" width="220" height="2" fill="#dbe9f4" opacity=".5"/>
+        <text x="380" y="60" font-size="10" fill="#9fc2dc" font-weight="bold">markup until transfer, yr 2&#8211;3</text>
         <text x="10" y="100" font-size="11" fill="#dee7f0" font-weight="bold">Captive</text>
-        <rect x="150" y="88" width="4" height="16" fill="#34b56a"/>
-        <text x="160" y="100" font-size="10" fill="#34b56a" font-weight="bold">none, ever</text>
+        <rect x="150" y="88" width="4" height="16" fill="url(#g-green)" filter="url(#barShadow)"/>
+        <text x="160" y="100" font-size="10" fill="#4fd489" font-weight="bold">none, ever</text>
       </svg>
     </div>
     <div class="rail">
@@ -704,9 +784,9 @@
           Named and defended, not waved away</div>
       </div>
       <div class="rail-main" style="gap:14px;">
-        <p style="font-size:12px; line-height:1.55;"><b style="color:var(--accent-text);">Against BOT —</b>
-          its value is a vendor building local capability you don't have, handed over later at a markup.
-          Jash already has that capability. BOT earns its keep when you don't already have India — Jash does.</p>
+        <p style="font-size:12px; line-height:1.55;"><b style="color:var(--accent-text);">BOT is the right answer for a company that doesn't already have India</b> —
+          it converts a partner's local build capability into your own asset, on a schedule, without you having to hire the first hundred people yourself. <b style="color:var(--accent-text);">Against BOT for Jash —</b>
+          that value is buying capability Jash already has. Handed over later at a markup, it earns its keep only when you're starting from zero — Jash isn't.</p>
         <p style="font-size:12px; line-height:1.55;"><b style="color:var(--accent-text);">Against pure outsourcing —</b>
           it puts IP- and customer-touching work at arm's length without a real unit-cost edge once you
           already own the entity that could do it captively — and permanently pays the 25&#8211;45% markup.</p>
@@ -737,15 +817,19 @@
       <div class="chart-title">Cost bridge, offshorable overhead (₹Cr/yr) <span class="illus">ILLUSTRATIVE</span></div>
       <svg class="chart-svg" viewBox="0 0 700 150" preserveAspectRatio="xMidYMid meet">
         <line x1="20" y1="128" x2="680" y2="128" stroke="#2a4d75" stroke-width="1"/>
-        <rect x="60" y="18" width="150" height="110" fill="#0085ca"/>
-        <text x="135" y="12" text-anchor="middle" font-size="20" font-weight="bold" fill="#FFFFFF">₹42 Cr</text>
+        <rect x="60" y="18" width="150" height="110" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="60" y="18" width="150" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="135" y="14" text-anchor="middle" font-size="20" font-weight="bold" fill="#FFFFFF">₹42 Cr</text>
         <text x="135" y="142" text-anchor="middle" font-size="12" fill="#93aec8">Today</text>
-        <rect x="290" y="18" width="150" height="29" fill="#34b56a"/>
-        <text x="365" y="12" text-anchor="middle" font-size="16" font-weight="bold" fill="#34b56a">&#8722;₹11 Cr saving</text>
-        <line x1="210" y1="18" x2="290" y2="18" stroke="#2a4d75" stroke-dasharray="3,2"/>
-        <line x1="440" y1="47" x2="520" y2="47" stroke="#2a4d75" stroke-dasharray="3,2"/>
-        <rect x="520" y="47" width="150" height="81" fill="#5c8bb4"/>
-        <text x="595" y="41" text-anchor="middle" font-size="20" font-weight="bold" fill="#5c8bb4">₹31 Cr</text>
+        <line x1="210" y1="18" x2="290" y2="18" stroke="#3a628f" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <rect x="290" y="18" width="150" height="29" fill="url(#g-green)" filter="url(#barShadow)"/>
+        <rect x="290" y="18" width="150" height="2" fill="#baf5cf" opacity=".55"/>
+        <rect x="298" y="1" width="134" height="15" fill="#062015" stroke="#34b56a" stroke-width="1"/>
+        <text x="365" y="12" text-anchor="middle" font-size="13" font-weight="bold" fill="#4fd489">&#8722;₹11 Cr saving</text>
+        <line x1="440" y1="47" x2="520" y2="47" stroke="#3a628f" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <rect x="520" y="47" width="150" height="81" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="520" y="47" width="150" height="2" fill="#dbe9f4" opacity=".5"/>
+        <text x="595" y="41" text-anchor="middle" font-size="20" font-weight="bold" fill="#FFFFFF">₹31 Cr</text>
         <text x="595" y="142" text-anchor="middle" font-size="12" fill="#93aec8">Steady state</text>
       </svg>
     </div>
@@ -774,7 +858,126 @@
   <div class="pagenum">10</div>
 </section>
 
-<!-- ============ 11 · ROADMAP — Gantt timeline chart ============ -->
+<!-- ============ 11 · THE FIVE-YEAR CASE — NPV/IRR/P&L bridge/downside ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">The Five-Year Case</div>
+    <div class="title serif">Over five years the case is worth <b>~₹25 Cr today — and even the
+      downside case stays positive</b></div>
+  </div>
+  <div class="body">
+    <div class="chart-wrap" style="flex:1;">
+      <div class="chart-title">Five-year cash flow, base case (₹Cr) <span class="illus">ILLUSTRATIVE</span></div>
+      <svg class="chart-svg" viewBox="0 0 700 140" preserveAspectRatio="xMidYMid meet">
+        <line x1="20" y1="90" x2="680" y2="90" stroke="#2a4d75" stroke-width="1"/>
+        <rect x="30" y="90" width="80" height="30" fill="url(#g-red)" filter="url(#barShadow)"/>
+        <rect x="30" y="118" width="80" height="2" fill="#ffcfc9" opacity=".4"/>
+        <text x="70" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 0</text>
+        <text x="70" y="84" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0776d">&#8722;₹9</text>
+        <rect x="140" y="76" width="80" height="14" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="140" y="76" width="80" height="2" fill="#dbe9f4" opacity=".5"/>
+        <text x="180" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 1</text>
+        <text x="180" y="70" text-anchor="middle" font-size="11" font-weight="bold" fill="#9fc2dc">₹4.4</text>
+        <rect x="250" y="21" width="80" height="69" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="250" y="21" width="80" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="290" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 2</text>
+        <text x="290" y="15" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">₹11</text>
+        <rect x="360" y="21" width="80" height="69" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="360" y="21" width="80" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="400" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 3</text>
+        <text x="400" y="15" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">₹11</text>
+        <rect x="470" y="21" width="80" height="69" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="470" y="21" width="80" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="510" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 4</text>
+        <text x="510" y="15" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">₹11</text>
+        <rect x="580" y="21" width="80" height="69" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="580" y="21" width="80" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="620" y="132" text-anchor="middle" font-size="10" fill="#93aec8">Yr 5</text>
+        <text x="620" y="15" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">₹11</text>
+      </svg>
+    </div>
+    <div class="specs" style="flex:0 0 100px;">
+      <div class="spec win" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">NPV, 5-yr @12%</span>
+        <div class="bignum" style="font-size:24px;">~₹25<span style="font-size:12px;">Cr</span></div>
+        <span style="font-size:9px; color:var(--text-dim);">Illustrative discount rate</span>
+      </div>
+      <div class="spec win" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">IRR</span>
+        <div class="bignum" style="font-size:24px;">~80<span style="font-size:12px;">%+</span></div>
+        <span style="font-size:9px; color:var(--text-dim);">High because the investment base is small — the direct result of converting, not building</span>
+      </div>
+      <div class="spec" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Downside NPV</span>
+        <div class="bignum pos" style="font-size:24px;">~₹12<span style="font-size:12px;">Cr</span></div>
+        <span style="font-size:9px; color:var(--text-dim);">At 10% offshorable share — still positive</span>
+      </div>
+    </div>
+    <div class="callout">
+      <b>The P&amp;L bridge, honestly stated:</b> FY26 PAT margin is 10.3%. This programme's ₹11 Cr
+      run-rate saving adds <b style="color:var(--accent-text);">~1.5 points</b> once fully ramped —
+      to ~11.8%. FY27 guidance is 12&#8211;13%. <b>This programme gets Jash most of the way, not
+      all of the way</b> — the remaining 0.2&#8211;1.2 points need pricing, volume or tariff
+      relief this deck doesn't claim to deliver.
+    </div>
+  </div>
+  <div class="footer"><b>Basis:</b> cash flows built from the Slide 10/18 saving and investment figures. 12% discount rate and the Year-1 40% ramp weighting are illustrative — no Jash-specific WACC is public. Downside case uses the 10% offshorable-share sensitivity from Appendix A4.</div>
+  <div class="pagenum">11</div>
+</section>
+
+<!-- ============ 12 · CASH-FLOW & TAX MECHANICS — the differentiator ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="eyebrow">Cash-Flow &amp; Tax Mechanics</div>
+    <div class="title serif">The 25&#8211;45% markup that hurts on Slide 5 —
+      <b>disappears entirely once the work is intercompany</b></div>
+  </div>
+  <div class="body">
+    <div class="split" style="flex:1;">
+      <div class="pane fail">
+        <div class="pane-label fail">If this were a vendor</div>
+        <p>An unrelated outsourcing vendor prices at cost <b>plus a 25&#8211;45% margin</b>
+          (Slide 5) — and the group pays that margin, in cash, forever. That markup is real money
+          leaving the group every year.</p>
+      </div>
+      <div class="pane win">
+        <div class="pane-label win">Because it's Jash serving Jash</div>
+        <p>The India centre still has to charge its own overseas entities a service fee — India's
+          transfer-pricing rules require an arm's-length <b style="color:var(--accent-text);">cost-plus
+          markup, illustratively ~15%</b> (in line with the market range for captive service
+          centres) — but that fee is <b>intercompany.</b></p>
+      </div>
+    </div>
+    <div class="callout gold">
+      <b>The consolidation insight — the mechanic a client team actually needs to see:</b> in
+      Jash's <i>consolidated</i> group accounts, the India centre's fee income and the overseas
+      entity's fee expense are related-party balances that <b>eliminate on consolidation.</b> The
+      illustrative 15% cost-plus that satisfies the tax authority never shows up as a real group
+      cost — only the underlying spend does. Run through outsourcing's markup, that same money is
+      gone for good. That gap — not just "who owns the entity" — is what the ₹11 Cr saving is
+      actually made of.
+    </div>
+    <div class="specs" style="flex:0 0 90px;">
+      <div class="spec" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">₹9 Cr investment split</span>
+        <span style="font-size:11px; color:var(--text); font-weight:bold;">~₹6 Cr capex · ~₹3 Cr opex</span>
+        <span style="font-size:9px; color:var(--text-dim);">Systems/fit-out vs dual-running — illustrative</span>
+      </div>
+      <div class="spec win" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Intercompany markup</span>
+        <span style="font-size:11px; color:var(--white); font-weight:bold;">~15% cost-plus, eliminates on consolidation</span>
+      </div>
+      <div class="spec" style="justify-content:center;">
+        <span class="k" style="font-size:9.5px;">Vendor markup (for contrast)</span>
+        <span style="font-size:11px; color:var(--text); font-weight:bold;">25&#8211;45%, real cash cost, forever</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><b>Basis:</b> transfer-pricing mechanic is a general intercompany-accounting principle, illustrated with Jash's figures. The 15% cost-plus rate is a stated illustrative assumption, not a sourced Jash rate — no company-specific transfer-pricing policy is public.</div>
+  <div class="pagenum">12</div>
+</section>
+
+<!-- ============ 13 · ROADMAP — Gantt timeline chart ============ -->
 <section class="slide">
   <div class="topbar">
     <div class="eyebrow">The Roadmap</div>
@@ -785,31 +988,44 @@
     <div class="chart-wrap" style="flex:1;">
       <div class="chart-title">Programme timeline, months 0&#8211;20, with stop/go gates</div>
       <svg class="chart-svg" viewBox="0 0 640 190" preserveAspectRatio="xMidYMid meet">
-        <line x1="20" y1="170" x2="620" y2="170" stroke="#2a4d75" stroke-width="1"/>
-        <text x="20" y="185" font-size="9.5" fill="#93aec8">0</text>
-        <text x="110" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">3</text>
-        <text x="290" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">9</text>
-        <text x="470" y="185" font-size="9.5" fill="#93aec8" text-anchor="middle">15</text>
-        <text x="620" y="185" font-size="9.5" fill="#93aec8" text-anchor="end">20 mo</text>
+        <rect x="20" y="18" width="90" height="36" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="20" y="18" width="90" height="2" fill="#bfe6ff" opacity=".5"/>
+        <text x="65" y="40" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 1</text>
+        <rect x="110" y="18" width="180" height="36" fill="url(#g-navy2)" filter="url(#barShadow)"/>
+        <rect x="110" y="18" width="180" height="2" fill="#a9c0e6" opacity=".5"/>
+        <text x="200" y="40" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 2</text>
+        <rect x="290" y="18" width="180" height="36" fill="url(#g-slate3)" filter="url(#barShadow)"/>
+        <rect x="290" y="18" width="180" height="2" fill="#d3ddf0" opacity=".5"/>
+        <text x="380" y="40" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 3</text>
+        <rect x="470" y="18" width="150" height="36" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="470" y="18" width="150" height="2" fill="#dbe9f4" opacity=".5"/>
+        <text x="545" y="40" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 4</text>
 
-        <rect x="20" y="40" width="90" height="34" fill="#0085ca"/>
-        <text x="65" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 1</text>
-        <rect x="110" y="40" width="180" height="34" fill="#2251A0"/>
-        <text x="200" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 2</text>
-        <rect x="290" y="40" width="180" height="34" fill="#5B7BB5"/>
-        <text x="380" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 3</text>
-        <rect x="470" y="40" width="150" height="34" fill="#5c8bb4"/>
-        <text x="545" y="61" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Phase 4</text>
+        <line x1="20" y1="150" x2="620" y2="150" stroke="#2a4d75" stroke-width="1"/>
+        <text x="20" y="165" font-size="9.5" fill="#93aec8">0</text>
+        <text x="110" y="165" font-size="9.5" fill="#93aec8" text-anchor="middle">3</text>
+        <text x="290" y="165" font-size="9.5" fill="#93aec8" text-anchor="middle">9</text>
+        <text x="470" y="165" font-size="9.5" fill="#93aec8" text-anchor="middle">15</text>
+        <text x="620" y="165" font-size="9.5" fill="#93aec8" text-anchor="end">20 mo</text>
 
-        <circle cx="110" cy="100" r="9" fill="#34b56a"/><text x="110" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G1</text>
-        <circle cx="290" cy="100" r="9" fill="#34b56a"/><text x="290" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G2</text>
-        <circle cx="470" cy="100" r="9" fill="#34b56a"/><text x="470" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G3</text>
-        <circle cx="620" cy="100" r="9" fill="#34b56a"/><text x="620" y="104" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G4</text>
+        <line x1="110" y1="66" x2="110" y2="150" stroke="#34b56a" stroke-width="1.3" stroke-dasharray="2,3"/>
+        <line x1="290" y1="66" x2="290" y2="150" stroke="#34b56a" stroke-width="1.3" stroke-dasharray="2,3"/>
+        <line x1="470" y1="66" x2="470" y2="150" stroke="#34b56a" stroke-width="1.3" stroke-dasharray="2,3"/>
+        <line x1="620" y1="66" x2="620" y2="150" stroke="#34b56a" stroke-width="1.3" stroke-dasharray="2,3"/>
+        <circle cx="110" cy="150" r="3" fill="#34b56a"/>
+        <circle cx="290" cy="150" r="3" fill="#34b56a"/>
+        <circle cx="470" cy="150" r="3" fill="#34b56a"/>
+        <circle cx="620" cy="150" r="3" fill="#34b56a"/>
 
-        <text x="65" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">Baseline, capex nil</text>
-        <text x="200" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">First tower live</text>
-        <text x="380" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">Engineering drafting moves</text>
-        <text x="545" y="128" text-anchor="middle" font-size="9.5" fill="#dee7f0">₹11 Cr run-rate realised</text>
+        <circle cx="110" cy="54" r="10" fill="url(#g-green)" filter="url(#dotGlow)" stroke="#052014" stroke-width="1.5"/><text x="110" y="58" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G1</text>
+        <circle cx="290" cy="54" r="10" fill="url(#g-green)" filter="url(#dotGlow)" stroke="#052014" stroke-width="1.5"/><text x="290" y="58" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G2</text>
+        <circle cx="470" cy="54" r="10" fill="url(#g-green)" filter="url(#dotGlow)" stroke="#052014" stroke-width="1.5"/><text x="470" y="58" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G3</text>
+        <circle cx="620" cy="54" r="10" fill="url(#g-green)" filter="url(#dotGlow)" stroke="#052014" stroke-width="1.5"/><text x="620" y="58" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">G4</text>
+
+        <text x="110" y="80" text-anchor="middle" font-size="9.5" fill="#dee7f0">Baseline, capex nil</text>
+        <text x="290" y="96" text-anchor="middle" font-size="9.5" fill="#dee7f0">First tower live</text>
+        <text x="470" y="80" text-anchor="middle" font-size="9.5" fill="#dee7f0">Engineering drafting moves</text>
+        <text x="620" y="96" text-anchor="end" font-size="9.5" fill="#dee7f0">₹11 Cr run-rate realised</text>
       </svg>
     </div>
     <div class="callout gold">
@@ -818,7 +1034,7 @@
     </div>
   </div>
   <div class="footer">Timings are indicative and assume a full-time programme lead from month 1.</div>
-  <div class="pagenum">11</div>
+  <div class="pagenum">13</div>
 </section>
 
 <!-- ============ 12 · RISKS ============ -->
@@ -833,13 +1049,16 @@
       <div class="chart-title">Precedent deal sizes, face value <span class="illus">NOT CURRENCY-ADJUSTED</span></div>
       <svg class="chart-svg" viewBox="0 0 640 90" preserveAspectRatio="xMidYMid meet">
         <text x="10" y="16" font-size="10.5" fill="#dee7f0" font-weight="bold">Aviva → WNS (BOT, 2008)</text>
-        <rect x="230" y="6" width="66" height="16" fill="#5c8bb4"/>
+        <rect x="230" y="6" width="66" height="16" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="230" y="6" width="66" height="2" fill="#dbe9f4" opacity=".5"/>
         <text x="276" y="18" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">£115M</text>
         <text x="10" y="46" font-size="10.5" fill="#dee7f0" font-weight="bold">GECIS → Genpact (captive, 2005)</text>
-        <rect x="230" y="36" width="286" height="16" fill="#0085ca"/>
+        <rect x="230" y="36" width="286" height="16" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="230" y="36" width="286" height="2" fill="#bfe6ff" opacity=".5"/>
         <text x="506" y="48" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">$500M</text>
         <text x="10" y="76" font-size="10.5" fill="#dee7f0" font-weight="bold">Citi Global Svcs → Genpact (captive, 2008)</text>
-        <rect x="230" y="66" width="400" height="16" fill="#0085ca"/>
+        <rect x="230" y="66" width="400" height="16" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="230" y="66" width="400" height="2" fill="#bfe6ff" opacity=".5"/>
         <text x="600" y="78" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="bold">$700M</text>
       </svg>
       <div class="caption">The same failure pattern recurs at every scale — from £115M to $700M.</div>
@@ -863,7 +1082,7 @@
     </div>
   </div>
   <div class="footer"><b>Source:</b> Aviva/WNS, GECIS/Genpact, Citigroup/Genpact — publicly reported BOT and captive divestitures.</div>
-  <div class="pagenum">12</div>
+  <div class="pagenum">14</div>
 </section>
 
 <!-- ============ 13 · CLOSE — GOVERNING THOUGHT #3, with recap ribbon ============ -->
@@ -900,7 +1119,7 @@
     </div>
   </div>
   <div class="footer">End of core narrative. Appendix follows: governance, 90-day plan, tower map, assumptions, sources, glossary.</div>
-  <div class="pagenum">13</div>
+  <div class="pagenum">15</div>
 </section>
 
 <!-- ============ 14 · APPENDIX DIVIDER ============ -->
@@ -958,7 +1177,7 @@
     </div>
   </div>
   <div class="footer">Advisory judgement, calibrated to a programme of this size.</div>
-  <div class="pagenum">15</div>
+  <div class="pagenum">17</div>
 </section>
 
 <!-- ============ 16 · A2 FIRST 90 DAYS ============ -->
@@ -977,19 +1196,19 @@
         <text x="220" y="70" font-size="9" fill="#93aec8" text-anchor="middle">Wk 4</text>
         <text x="420" y="70" font-size="9" fill="#93aec8" text-anchor="middle">Wk 8</text>
         <text x="620" y="70" font-size="9" fill="#93aec8" text-anchor="end">Wk 12</text>
-        <circle cx="120" cy="55" r="8" fill="#34b56a"/><text x="120" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">3</text>
+        <circle cx="120" cy="55" r="8" fill="url(#g-green)" filter="url(#dotGlow)"/><text x="120" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">3</text>
         <text x="120" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Governance</text>
-        <circle cx="205" cy="55" r="8" fill="#0085ca"/><text x="205" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">1</text>
+        <circle cx="205" cy="55" r="8" fill="url(#g-blue)" filter="url(#dotGlow)"/><text x="205" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">1</text>
         <text x="205" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Baseline</text>
-        <circle cx="235" cy="55" r="8" fill="#0085ca"/><text x="235" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">2</text>
+        <circle cx="235" cy="55" r="8" fill="url(#g-blue)" filter="url(#dotGlow)"/><text x="235" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">2</text>
         <text x="260" y="20" text-anchor="middle" font-size="8" fill="#dee7f0">Headcount</text>
-        <circle cx="320" cy="55" r="8" fill="#e2564b"/><text x="320" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">4</text>
-        <text x="320" y="38" text-anchor="middle" font-size="8" fill="#e2564b" font-weight="bold">Gate G1</text>
-        <circle cx="420" cy="55" r="8" fill="#5c8bb4"/><text x="420" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">5</text>
+        <circle cx="320" cy="55" r="8" fill="url(#g-red)" filter="url(#dotGlow)"/><text x="320" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">4</text>
+        <text x="320" y="38" text-anchor="middle" font-size="8" fill="#f0776d" font-weight="bold">Gate G1</text>
+        <circle cx="420" cy="55" r="8" fill="url(#g-blue2)" filter="url(#dotGlow)"/><text x="420" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">5</text>
         <text x="420" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">TOM design</text>
-        <circle cx="520" cy="55" r="8" fill="#5c8bb4"/><text x="520" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">6</text>
+        <circle cx="520" cy="55" r="8" fill="url(#g-blue2)" filter="url(#dotGlow)"/><text x="520" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">6</text>
         <text x="520" y="38" text-anchor="middle" font-size="8" fill="#dee7f0">Site capacity</text>
-        <circle cx="620" cy="55" r="8" fill="#5c8bb4"/><text x="620" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">7</text>
+        <circle cx="620" cy="55" r="8" fill="url(#g-blue2)" filter="url(#dotGlow)"/><text x="620" y="58" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="bold">7</text>
         <text x="605" y="38" text-anchor="end" font-size="8" fill="#dee7f0">Transfer pricing</text>
       </svg>
     </div>
@@ -1007,7 +1226,7 @@
       Cr isn't committed until Gate G1 confirms the case.</div>
   </div>
   <div class="footer">Owners named by role, not individual. Dates from programme start.</div>
-  <div class="pagenum">16</div>
+  <div class="pagenum">18</div>
 </section>
 
 <!-- ============ 17 · A3 TOWER MAP — 100% stacked bar ============ -->
@@ -1021,9 +1240,11 @@
     <div class="chart-wrap" style="flex:0.55;">
       <div class="chart-title">Seven towers, by destination</div>
       <svg class="chart-svg" viewBox="0 0 640 60" preserveAspectRatio="xMidYMid meet">
-        <rect x="10" y="10" width="514" height="30" fill="#0085ca"/>
+        <rect x="10" y="10" width="514" height="30" fill="url(#g-blue)" filter="url(#barShadow)"/>
+        <rect x="10" y="10" width="514" height="2" fill="#bfe6ff" opacity=".5"/>
         <text x="267" y="30" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">6 towers → Captive</text>
-        <rect x="524" y="10" width="106" height="30" fill="#5c8bb4"/>
+        <rect x="524" y="10" width="106" height="30" fill="url(#g-blue2)" filter="url(#barShadow)"/>
+        <rect x="524" y="10" width="106" height="2" fill="#dbe9f4" opacity=".5"/>
         <text x="577" y="30" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="bold">1 → Vendor</text>
       </svg>
     </div>
@@ -1039,7 +1260,7 @@
     </table>
   </div>
   <div class="footer">Basis: advisory judgement applied to Jash's published entity and product structure. No new site is proposed — Indore + Chennai only.</div>
-  <div class="pagenum">17</div>
+  <div class="pagenum">19</div>
 </section>
 
 <!-- ============ 18 · A4 ASSUMPTIONS — sensitivity chart ============ -->
@@ -1064,11 +1285,13 @@
         <div class="chart-title">Sensitivity: annual saving vs. the 15% assumption</div>
         <svg class="chart-svg" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet">
           <line x1="15" y1="130" x2="290" y2="130" stroke="#2a4d75" stroke-width="1"/>
-          <rect x="50" y="30" width="60" height="100" fill="#0085ca"/>
+          <rect x="50" y="30" width="60" height="100" fill="url(#g-blue)" filter="url(#barShadow)"/>
+          <rect x="50" y="30" width="60" height="2" fill="#bfe6ff" opacity=".5"/>
           <text x="80" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">₹11 Cr</text>
           <text x="80" y="146" text-anchor="middle" font-size="10" fill="#93aec8">At 15% (base case)</text>
-          <rect x="180" y="67" width="60" height="63" fill="#e2564b"/>
-          <text x="210" y="59" text-anchor="middle" font-size="13" font-weight="bold" fill="#e2564b">~₹7 Cr</text>
+          <rect x="180" y="67" width="60" height="63" fill="url(#g-red)" filter="url(#barShadow)"/>
+          <rect x="180" y="67" width="60" height="2" fill="#ffcfc9" opacity=".5"/>
+          <text x="210" y="59" text-anchor="middle" font-size="13" font-weight="bold" fill="#f0776d">~₹7 Cr</text>
           <text x="210" y="146" text-anchor="middle" font-size="10" fill="#93aec8">At 10% (downside)</text>
         </svg>
       </div>
@@ -1080,7 +1303,7 @@
     </div>
   </div>
   <div class="footer">This register is the honest limit of what public information supports — the work plan for the first 90 days, not a disclaimer.</div>
-  <div class="pagenum">18</div>
+  <div class="pagenum">20</div>
 </section>
 
 <!-- ============ 19 · A5 SOURCES ============ -->
@@ -1109,7 +1332,7 @@
     </div>
   </div>
   <div class="footer">All ₹ figures as reported by the company. USD/GBP equivalents shown where the company disclosed them.</div>
-  <div class="pagenum">19</div>
+  <div class="pagenum">21</div>
 </section>
 
 <!-- ============ 20 · A6 GLOSSARY + A8 NOTE ============ -->
@@ -1138,7 +1361,7 @@
     </div>
   </div>
   <div class="footer">End of document. Public-information illustration. Jash Engineering has announced no capability-centre programme and is not a client.</div>
-  <div class="pagenum">20</div>
+  <div class="pagenum">22</div>
 </section>
 
 </div>
