@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+/tmp/
+.DS_Store
+.env
+
+# Generated pipeline output -- regenerate with scripts/convert.py, never commit.
+*.pptx
+*.manifest.json
+*.slide_plan.json
+*.build_report.json
+*.render_report.json
+*.fidelity_report.json
+examples/*_assets/
+examples/*_build_assets/
+examples/*_render/

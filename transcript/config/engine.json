@@ -1,0 +1,8 @@
+{
+  "measured_on": "2026-07-29",
+  "machine": "Apple M4",
+  "model": "mlx-community/whisper-large-v3-turbo",
+  "asr_realtime_factor": 13.36,
+  "sample_duration_sec": 2132.9,
+  "note": "asr_realtime_factor = seconds of audio processed per second of wall-clock, ASR lane only. Diarization runs concurrently on CPU and is normally hidden beneath this. Regenerate with ./calibrate.sh after any model change."
+}
