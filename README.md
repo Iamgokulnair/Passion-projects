@@ -1,6 +1,6 @@
 # Passion-projects
 
-Personal projects, not related to work — just curiosity ones. Two plug-and-play
+Personal projects, not related to work — just curiosity ones. Three plug-and-play
 Claude Code / Cursor skills live here, each self-contained in its own folder.
 
 Clone the repo, run one setup script per skill you want, and go:
@@ -38,15 +38,38 @@ cd transcript; .\scripts\setup.ps1        # Windows
 
 Full detail: [`transcript/README.md`](transcript/README.md).
 
-## Using either from Claude Code
+## [`product-history/`](product-history/)
+
+Paste a product link, find out whether the discount is real. Pulls the product's actual
+12-month price history from four independent trackers, shows where today's price sits in
+that band, and flags dark patterns by their names in India's CCPA Guidelines for Prevention
+and Regulation of Dark Patterns, 2023 — fictitious MRP anchors, recycled discounts,
+never-was prices. Nothing to install: pure Python standard library, no API key, no login.
+
+When the sources disagree or only one has the product, it refuses to make a call rather
+than guessing. A confidently wrong price verdict is worse than none.
+
+```bash
+cd product-history && ./scripts/setup.sh   # macOS/Linux — preflight, no install
+python3 scripts/ph.py "https://www.amazon.in/dp/B0CQKS8NPQ"
+```
+
+Full detail: [`product-history/README.md`](product-history/README.md).
+
+## Using any of these from Claude Code
 
 Symlink the one(s) you want into `~/.claude/skills/` so `/html-to-ppt`, `/transcript`,
-and `/transcript-to-summary` become available as slash commands:
+`/transcript-to-summary`, and `/product-history` become available as slash commands:
 
 ```bash
 ln -s "$PWD/html-to-ppt" ~/.claude/skills/html-to-ppt
 ln -s "$PWD/transcript" ~/.claude/skills/transcript
 ln -s "$PWD/transcript-to-summary" ~/.claude/skills/transcript-to-summary
+ln -s "$PWD/product-history" ~/.claude/skills/product-history
 ```
 
 Each skill's own README has the Windows equivalent and full setup/troubleshooting detail.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).
