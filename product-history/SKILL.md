@@ -6,8 +6,8 @@ description: >-
   price history from multiple independent trackers and auditing the offer for dark patterns
   named in India's CCPA Guidelines for Prevention and Regulation of Dark Patterns, 2023.
   Answers the question a sale banner is designed to stop you asking: is ₹1,499 a genuine floor,
-  or the same price this has sat at all year with an invented MRP stapled on top? Returns the
-  12-month low / median / high, where today sits in that band as a percentile, a BUY / FAIR /
+  or the same price this has sat at with an invented MRP stapled on top? Returns the observed
+  low / median / high price band, where today sits in that band as a percentile, a BUY / FAIR /
   WAIT / TRAP call with the trigger price that would change it, and named dark-pattern flags.
   Use for "/product-history", "is this a good price", "check the price history", "should I buy
   this now", "is this discount real", "is this sale genuine", "what's the lowest this has been",
@@ -89,7 +89,7 @@ Do not restate the table in prose.
 
 | Verdict | Means |
 |---|---|
-| **BUY** | Bottom quartile of the 12-month band and within 5% of the all-time low |
+| **BUY** | Bottom quartile of the observed price band and within 5% of the all-time low |
 | **FAIR** | Between the 25th and 60th percentile — reasonable, not the floor |
 | **WAIT** | Above the 60th percentile. This price is worse than typical |
 | **TRAP** | A dark pattern fired. Any flag downgrades the verdict one band; a flagged WAIT becomes TRAP |
@@ -121,7 +121,7 @@ fired it.
 |---|---|---|
 | Fictitious MRP anchor | Bait and switch | Discount claimed off MRP exceeds discount off the real median by >25pp |
 | Never-was price | Bait and switch | Claimed MRP is above the highest price ever observed |
-| Fake sale | False urgency | An advertised "sale" price is at or above the 12-month median |
+| Fake sale | False urgency | An advertised "sale" price is at or above the observed median |
 | Recycled discount | False urgency | The same "drop" price recurs 3+ times in 12 months |
 | Pre-sale hike | False urgency | Price rose >5% within 30 days before the drop |
 | Drip pricing | Drip pricing | Reported as **unverifiable** — cannot be seen before checkout |
@@ -133,12 +133,13 @@ says so rather than guessing.
 
 ## How it gets the data
 
-All network access goes through **agent-reach**, and only agent-reach:
+The only network calls this skill makes are to agent-reach's two free, key-less channels —
+no other host, no paid API, no browser:
 
-| Lane | agent-reach channel | Job |
+| Lane | agent-reach channel | Called as |
 |---|---|---|
-| Resolve | `search` → Exa (`mcporter`) | Product name/ASIN → the exact product page on each tracker |
-| Fetch | `web` → Jina Reader | Read those pages |
+| Resolve | `search` → Exa | `mcporter call 'exa.web_search_exa(...)'`, per `agent-reach/references/search.md` |
+| Fetch | `web` → Jina Reader | `curl https://r.jina.ai/<url>`, per `agent-reach/references/web.md` |
 
 Four independent trackers are triangulated: `pricehistory.app`, `pricediff.in`,
 `pricehistoryapp.com`, `producthistory.in`. No API key, no login, no paid tier.

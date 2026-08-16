@@ -13,8 +13,8 @@ guess into a decision.
 
 | # | Component | Passing bar |
 |---|---|---|
-| 1 | **Band before verdict** | The 12-month low / median / high appear *above* the recommendation. The reader sees the evidence before the conclusion, never after |
-| 2 | **Percentile, not adjectives** | "68th percentile of the 12-month band" — never "quite high", "a decent price" |
+| 1 | **Band before verdict** | The observed low / median / high appear *above* the recommendation. The reader sees the evidence before the conclusion, never after |
+| 2 | **Percentile, not adjectives** | "68th percentile of the price band" — never "quite high", "a decent price". Never call it a "12-month" band unless a source actually states that window |
 | 3 | **Confidence is first-class** | Every verdict carries HIGH / MEDIUM / LOW and the source count that produced it. Never printed without it |
 | 4 | **LOW withholds** | At LOW confidence the tool prints *"not enough data to call it"* and the raw band. It does **not** print BUY/WAIT. Refusing to answer is a passing state |
 | 5 | **Every number is attributed** | Each figure carries its source domain and fetch timestamp. An unattributed number is a defect |

@@ -22,14 +22,34 @@ def _ensure():
     os.makedirs(DATA_DIR, exist_ok=True)
 
 
+_ROW_FIELDS = ("current", "mrp", "low", "high", "avg", "avg_window")
+
+
+def _last_row_for(key: str, source: str, existing: list[dict]):
+    for row in reversed(existing):
+        if row.get("key") == key and row.get("source") == source:
+            return row
+    return None
+
+
 def append(key: str, observations: list, title: str | None = None) -> int:
-    """Record this run's observations. Returns rows written."""
+    """Record this run's observations. Returns rows actually written.
+
+    Skips a source when its last recorded row for this product already has
+    identical price fields — otherwise running the tool twice in a minute
+    logs the same observation twice, and the ledger's "N prior observations"
+    count reads as N independent datapoints when it is really one repeated."""
     _ensure()
+    existing = history(key)
     ts = now_iso()
     rows = 0
     with open(LEDGER_PATH, "a", encoding="utf-8") as fh:
         for o in observations:
             if not o.usable:
+                continue
+            new_row = {f: getattr(o, f) for f in _ROW_FIELDS}
+            prior = _last_row_for(key, o.source, existing)
+            if prior and all(prior.get(f) == new_row[f] for f in _ROW_FIELDS):
                 continue
             fh.write(json.dumps({
                 "ts": ts,
@@ -37,12 +57,7 @@ def append(key: str, observations: list, title: str | None = None) -> int:
                 "title": title or o.title,
                 "source": o.source,
                 "url": o.url,
-                "current": o.current,
-                "mrp": o.mrp,
-                "low": o.low,
-                "high": o.high,
-                "avg": o.avg,
-                "avg_window": o.avg_window,
+                **new_row,
             }, ensure_ascii=False) + "\n")
             rows += 1
     return rows
@@ -68,18 +83,24 @@ def history(key: str) -> list[dict]:
 
 
 def summary(key: str) -> dict:
-    """What our OWN records say — independent of what the sites claim today."""
+    """What our OWN records say — independent of what the sites claim today.
+
+    A row missing an expected field (a hand-edited ledger, a future format
+    change) must degrade gracefully, matching the "corrupt line never takes
+    the tool down" contract in history() above — .get(), not [].
+    """
     rows = history(key)
     if not rows:
         return {"observations": 0, "first_seen": None, "last_seen": None,
                 "own_low": None, "own_high": None, "distinct_days": 0}
 
     currents = [r["current"] for r in rows if r.get("current")]
-    days = {r["ts"][:10] for r in rows}
+    timestamps = [r["ts"] for r in rows if r.get("ts")]
+    days = {t[:10] for t in timestamps}
     return {
         "observations": len(rows),
-        "first_seen": rows[0]["ts"],
-        "last_seen": rows[-1]["ts"],
+        "first_seen": timestamps[0] if timestamps else None,
+        "last_seen": timestamps[-1] if timestamps else None,
         "own_low": min(currents) if currents else None,
         "own_high": max(currents) if currents else None,
         "distinct_days": len(days),

@@ -1,7 +1,8 @@
 # product-history
 
-**Is that 40% off real?** Paste a product link. Get back what it has actually cost over the
-last year, and whether the offer in front of you is a genuine floor or a manufactured one.
+**Is that 40% off real?** Paste a product link. Get back what it has actually cost, according
+to independent trackers, and whether the offer in front of you is a genuine floor or a
+manufactured one.
 
 Runs entirely on free, public sources. No API key, no login, no paid tier, no account.
 Pure Python standard library — nothing to install.
@@ -12,35 +13,57 @@ Pure Python standard library — nothing to install.
 
 A discount is a fraction, and the seller picks the denominator.
 
-Here is a real result from this tool, on a real listing:
+Here is a complete, unedited result from this tool, on a real listing — nothing trimmed,
+including the lines that don't flatter it:
 
 ```
-  boAt Airdopes 141 ANC
+  Pigeon All in One Super Cooker 5 L Black Induction Bottom No…
   ──────────────────────────────────────────────────────────────
-  12-MONTH BAND
-    Lowest          ₹1,098
-    Median          ₹1,478
-    Highest         ₹1,799
-    Today           ₹1,499   ← 57th percentile
+  PRICE BAND
+    Lowest          ₹1,959
+    Median          ₹2,898
+    Highest         ₹3,242
+    Today           ₹2,874   ← 71st percentile
 
-    low  ──────────────────┼────────●─────────────────  high
-                                    ▲  today
-         ┼ = 12-month median
+    low  ────────────────────────────────●┼────────────  high
+                                         ▲  today
+         ┼ = median
+
+  VERDICT   TRAP  —  Manipulated offer. Do not buy on this banner.
+            71st percentile of the price band; 1% below the median
+            (downgraded from WAIT — dark pattern found)
+            Becomes BUY at ₹2,057 or below.
+
+  CONFIDENCE  MEDIUM  (2 usable sources; 14.6% spread on current price)
+
+  DARK PATTERNS FOUND
+    • Fictitious MRP anchor  [CCPA 2023: Bait and switch]
+      Advertised 42% off a claimed MRP of ₹4,990, but only 1%
+      below the real median of ₹2,898 — a 42pp gap between the
+      discount claimed and the discount real.
+
+    • Never-was price  [CCPA 2023: Bait and switch]
+      Claimed MRP ₹4,990 exceeds the highest price ever observed
+      (₹3,242). No source has seen it sold at MRP.
+```
+
+A 42% off banner, on a price that is 1% *below* the median — not the floor, and worse than
+typical. The claimed MRP has never once been the real price. Confidence is MEDIUM, not HIGH:
+two sources, one flagged as a short-window average, and the tool says so rather than dressing
+it up.
+
+A thinner case — one source only, so the buy/wait call is honestly withheld while the
+manipulation audit still runs:
+
+```
+  VERDICT   NO-CALL  —  Not enough data to call it.
+  CONFIDENCE  LOW  (1 usable source; 0.0% spread on current price)
 
   DARK PATTERNS FOUND
     • Fictitious MRP anchor  [CCPA 2023: Bait and switch]
       Advertised 75% off a claimed MRP of ₹5,990, but actually
-      1% ABOVE the real 12-month median of ₹1,478 — a 76pp gap
-      between the discount claimed and the discount real.
-
-    • Never-was price  [CCPA 2023: Bait and switch]
-      Claimed MRP ₹5,990 exceeds the highest price ever observed
-      (₹1,799). No source has seen it sold at MRP.
-
-    • Recycled discount  [CCPA 2023: False urgency]
-      ₹1,299 has been presented as a price drop 8 times
-      (2024-08-06 … 2026-07-08) — a recurring price dressed as
-      an event.
+      1% ABOVE the real median of ₹1,478 — a 76pp gap between
+      the discount claimed and the discount real.
 ```
 
 The listing advertises **75% off**. Measured against what the product has actually sold for,

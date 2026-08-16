@@ -101,9 +101,14 @@ def _queries(t: Target) -> list[str]:
 # different products, however similar the rest of the name looks. This is the
 # gate that stops "Airdopes 141 ANC" and "Airdopes 141 Gen 2" being averaged
 # into one meaningless band.
+#
+# Deliberately excludes words that double as ordinary marketing copy — "active"
+# ("Active Noise Cancelling"), "air", "nc", "hd", "se" — because a retailer's
+# full title routinely contains them regardless of variant. Included only where
+# a token is near-exclusively a model-line qualifier.
 VARIANT_MARKERS = {
-    "anc", "pro", "plus", "max", "mini", "lite", "gen", "ultra", "se",
-    "neo", "prime", "air", "active", "nc", "xl", "hd", "fe",
+    "anc", "pro", "plus", "max", "mini", "lite", "gen", "ultra",
+    "neo", "prime", "xl", "fe",
 }
 
 _NOISE = {"the", "with", "for", "and", "in", "of", "a", "an", "by",
@@ -136,8 +141,12 @@ def identity_score(target_name: str | None, title: str | None) -> tuple[float, b
     markers_agree = True
     if tgt_marks and not (tgt_marks & cand_marks):
         markers_agree = False          # target says ANC, candidate never does
-    elif cand_marks - tgt_marks and not tgt_marks:
-        markers_agree = False          # candidate is a variant we did not ask for
+    elif cand_marks - tgt_marks and not tgt_marks and coverage < 0.75:
+        # Candidate carries a marker the target never mentioned. Only treat
+        # this as a conflict when coverage is ALSO weak — a retailer's title
+        # often adds one incidental word ("Pro") to an otherwise exact match,
+        # and a near-perfect token match must not be thrown out for it.
+        markers_agree = False
 
     return (round(coverage, 2), markers_agree)
 

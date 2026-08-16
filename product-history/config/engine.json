@@ -71,7 +71,7 @@
     },
     "fake_sale": {
       "ccpa_pattern": "False urgency",
-      "trigger": "advertised sale price >= 12-month median"
+      "trigger": "advertised sale price >= the observed median price"
     },
     "pre_sale_hike": {
       "ccpa_pattern": "False urgency",

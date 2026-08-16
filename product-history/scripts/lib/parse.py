@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from .util import all_money, money, parse_loose_date
+from .util import money, parse_loose_date
 
 
 class Observation:
@@ -30,7 +30,10 @@ class Observation:
         self.low = kw.get("low")
         self.high = kw.get("high")
         self.avg = kw.get("avg")
-        self.avg_window = kw.get("avg_window", "12m")
+        # No source in this skill's registry states its average's window in
+        # the page text — "unknown" is the honest default. Only set to a
+        # concrete value ("30d", "365d") when a parser reads it explicitly.
+        self.avg_window = kw.get("avg_window", "unknown")
         self.events = kw.get("events") or []
         self.site_verdict = kw.get("site_verdict")
         self.tracking_since = kw.get("tracking_since")
@@ -204,7 +207,7 @@ def parse_pricehistoryapp_com(text: str, url: str) -> Observation:
                 mrp = current + saved
                 notes.append("MRP derived from stated saving")
 
-    avg, window = None, "12m"
+    avg, window = None, "unknown"
     m = re.search(r"(\d+)d Average\s*\n*\s*(₹\s*[0-9][0-9,]*)", text, re.I)
     if m:
         window = f"{m.group(1)}d"
@@ -214,8 +217,8 @@ def parse_pricehistoryapp_com(text: str, url: str) -> Observation:
         if m:
             avg, window = money(m.group(1)), "30d"
 
-    if window != "12m":
-        notes.append(f"average is {window}, not 12-month — down-weighted")
+    if avg is not None:
+        notes.append(f"average is {window}, a short recent window")
 
     return Observation(
         "pricehistoryapp_com", url, title=_title(text), current=current, mrp=mrp,
@@ -234,13 +237,13 @@ def parse_producthistory_in(text: str, url: str) -> Observation:
 
     low, avg, high = glued("Lowest"), glued("Average"), glued("Highest")
 
+    # Anchored to the "X% off" tag next to the price. No fallback to "the
+    # first ₹ amount on the page" — that grabbed unrelated banner or
+    # recommended-product prices and mislabelled them as the current price.
     current = None
     m = re.search(r"(₹\s*[0-9][0-9,]*)\s*[0-9.]+%\s*off", text, re.I)
     if m:
         current = money(m.group(1))
-    if current is None:
-        amounts = all_money(text)
-        current = amounts[0] if amounts else None
 
     notes = []
     if low is not None and high is not None and low == high:

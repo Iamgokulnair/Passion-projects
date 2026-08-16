@@ -6,8 +6,10 @@
     ph.py "<url>" --json                  # machine-readable, for the widget
     ph.py --preflight                     # is the agent-reach lane up?
 
-All network access goes through agent-reach (Jina Reader + Exa). Nothing is
-written outside this skill folder.
+The only network calls this script makes are to agent-reach's two free,
+key-less channels: the Jina Reader endpoint (its `web` channel) and Exa via
+`mcporter` (its `search` channel) — see lib/fetch.py. No other host, no paid
+API, no browser. Nothing is written outside this skill folder.
 """
 from __future__ import annotations
 
@@ -90,6 +92,7 @@ def run(raw: str, advertised_discount: float | None = None) -> dict:
         "confidence": result["confidence"],
         "flags": result["flags"],
         "verdict": result["verdict"],
+        "stale_hours": result.get("stale_hours"),
         "sources": [o.to_dict() for o in observations],
         "failures": failures,
         "ledger": {**prior, "rows_written": rows},
@@ -112,7 +115,7 @@ def render(res: dict) -> str:
     out.append(BAR)
 
     # Band BEFORE verdict — evidence first, conclusion second.
-    out.append("  12-MONTH BAND")
+    out.append("  PRICE BAND")
     out.append(f"    Lowest    {rupees(b['low']):>12}")
     out.append(f"    Median    {rupees(b['median']):>12}")
     out.append(f"    Highest   {rupees(b['high']):>12}")
@@ -122,6 +125,16 @@ def render(res: dict) -> str:
     bar = band_bar(b)
     if bar:
         out.extend(bar)
+    if b.get("avg_window_note"):
+        for line in _wrap(b["avg_window_note"], 58):
+            out.append(f"    note: {line}")
+    if b.get("tracked_since"):
+        cp = f", {b['checkpoints']} checkpoints" if b.get("checkpoints") else ""
+        days = f"{b['tracked_days']} days" if b.get("tracked_days") is not None else "unknown span"
+        out.append(f"    tracked since {b['tracked_since']} ({days}{cp})")
+    for note in b.get("excluded_notes") or []:
+        for line in _wrap(note, 58):
+            out.append(f"    note: {line}")
     out.append("")
 
     out.append(f"  VERDICT   {v['verdict']}  —  {v['headline']}")
@@ -132,7 +145,9 @@ def render(res: dict) -> str:
         out.append(f"            Becomes BUY at {rupees(v['trigger_price'])} or below.")
     out.append("")
 
-    out.append(f"  CONFIDENCE  {c['level']}  ({'; '.join(c['reasons'])})")
+    stale = res.get("stale_hours")
+    stale_tag = f"  [STALE — {stale:.0f}h old]" if stale else ""
+    out.append(f"  CONFIDENCE  {c['level']}{stale_tag}  ({'; '.join(c['reasons'])})")
     out.append("")
 
     if res["flags"]:
@@ -148,9 +163,13 @@ def render(res: dict) -> str:
 
     out.append("  SOURCES")
     for s in res["sources"]:
-        extra = f"  [{s['avg_window']} avg]" if s["avg_window"] != "12m" else ""
+        extra = f"  [{s['avg_window']} avg]" if s["avg_window"] not in (None, "unknown") else ""
+        when = _hhmm(s.get("fetched_at"))
         out.append(f"    ✓ {s['source']:<22} {rupees(s['current']):>10}"
-                   f"  low {rupees(s['low']):>9}  high {rupees(s['high']):>9}{extra}")
+                   f"  low {rupees(s['low']):>9}  high {rupees(s['high']):>9}"
+                   f"{extra}{('  as of ' + when) if when else ''}")
+        for note in s.get("notes") or []:
+            out.append(f"        ⚑ {note}")
     for f in res["failures"]:
         host = f["url"].split("/")[2] if "//" in f["url"] else f["url"]
         out.append(f"    ✗ {host:<22} {f['error']}")
@@ -167,6 +186,16 @@ def render(res: dict) -> str:
     out.append("  Regulation of Dark Patterns, 2023 (Consumer Protection Act s.18).")
     out.append("")
     return "\n".join(out)
+
+
+def _hhmm(iso_ts):
+    """'2026-08-15T16:41:45+00:00' -> '16:41 UTC'. Empty on anything unparsable."""
+    if not iso_ts or "T" not in iso_ts:
+        return ""
+    try:
+        return iso_ts.split("T", 1)[1][:5] + " UTC"
+    except (IndexError, AttributeError):
+        return ""
 
 
 def band_bar(b: dict, width: int = 46) -> list[str]:
@@ -199,7 +228,7 @@ def band_bar(b: dict, width: int = 46) -> list[str]:
         "    low  " + "".join(track) + "  high",
         "         " + "".join(caret).rstrip()
         + ("  today" if ci is not None else ""),
-        "         ┼ = 12-month median",
+        "         ┼ = median",
     ]
 
 

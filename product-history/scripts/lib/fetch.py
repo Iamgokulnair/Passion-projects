@@ -94,7 +94,12 @@ def exa_search(query: str, num_results: int = 8) -> list[str]:
     Shells out to mcporter exactly as agent-reach/references/search.md prescribes.
     Returns [] if Exa is unavailable — the caller degrades to ASIN-keyed lookup.
     """
-    call = f'exa.web_search_exa(query: "{query}", numResults: {num_results})'
+    # The query is embedded in a function-call-style string mcporter parses
+    # itself, so a bare quote or backslash in a product name (42" TV, a 5\"
+    # screen) breaks the expression and mcporter exits non-zero — which read
+    # as "no sources found" rather than the syntax error it actually was.
+    safe_query = query.replace("\\", "\\\\").replace('"', '\\"')
+    call = f'exa.web_search_exa(query: "{safe_query}", numResults: {num_results})'
     try:
         proc = subprocess.run(
             ["mcporter", "call", call],
