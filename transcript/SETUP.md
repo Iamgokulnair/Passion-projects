@@ -1,9 +1,29 @@
 # Setup — one time
 
-**macOS (Apple Silicon or Intel):**
+## Prerequisite: `uv`
+
+This skill's **one** external prerequisite is [`uv`](https://astral.sh/uv):
 
 ```bash
-cd "$HOME/Documents/Claude/Personal/All my Skills/Video & Media Production/transcript"
+curl -LsSf https://astral.sh/uv/install.sh | sh     # macOS / Linux
+```
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"   # Windows
+```
+
+If `uv` is missing, `setup.sh` offers to install it for you, and falls back to
+`python3 -m venv` + `pip` if you decline (that path needs Python 3.10+ already installed).
+With `uv`, you don't need Python at all — it fetches its own.
+
+You do **not** need Homebrew, and you do **not** need ffmpeg: `imageio-ffmpeg` ships the
+binary and the skill resolves it automatically.
+
+## Run it
+
+**macOS / Linux** — from the skill's own directory:
+
+```bash
+cd /path/to/transcript
 ./scripts/setup.sh
 ```
 
@@ -14,11 +34,15 @@ cd transcript
 .\scripts\setup.ps1
 ```
 
-Creates a self-contained `.venv` (Python 3.12) inside the skill. On Apple Silicon this
-installs `mlx-whisper` (the fast, measured path); on Intel Mac, Windows, or Linux it installs
+Creates a self-contained `.venv` inside the skill folder. On Apple Silicon this installs
+`mlx-whisper` (the fast, measured path); on Intel Mac, Windows, or Linux it installs
 `faster-whisper` instead — same output, same downstream pipeline, unmeasured/CPU-bound speed
 until benchmarked on real hardware. Either way: `imageio-ffmpeg` and `pyannote.audio` too.
-Idempotent — safe to re-run. Nothing is installed system-wide and Homebrew is not required.
+Idempotent — safe to re-run.
+
+**Disk footprint, honestly:** the `.venv` is ~1.3 GB, the Whisper model ~1.5 GB on first run
+(the non-Apple-Silicon fallback model is ~3 GB), and diarization pulls further weights the
+first time it runs. Budget **~3 GB**, more on Windows/Intel.
 
 If Windows blocks `setup.ps1` from running ("this file came from another computer"), the repo
 was downloaded as a ZIP rather than `git clone`d — run `Unblock-File .\scripts\setup.ps1` first.

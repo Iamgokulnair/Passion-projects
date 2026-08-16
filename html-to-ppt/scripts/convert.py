@@ -18,10 +18,15 @@ from pathlib import Path
 HERE = Path(__file__).parent
 
 
-def run(*args):
+def run(*args, tolerate=(0, 1)):
+    """Run a stage. Exit codes in `tolerate` are reported but do not abort the run.
+
+    1  = "checked, found problems, reported them" (verify_fidelity FAIL, degraded render)
+    2  = geometry findings from the Perceive Gate — real, located defects
+    """
     print("$ " + " ".join(str(a) for a in args))
     result = subprocess.run([sys.executable, *args], cwd=str(HERE))
-    if result.returncode not in (0, 1):  # 1 is verify_fidelity's "FAIL, but reported" exit
+    if result.returncode not in tolerate:
         sys.exit(result.returncode)
     return result.returncode
 
@@ -48,7 +53,7 @@ def main():
     run(*build_args)
 
     print("\n== Stage 3: render (Perceive Gate) ==")
-    run(str(HERE / "render_preview.py"), str(out_path))
+    render_exit = run(str(HERE / "render_preview.py"), str(out_path), tolerate=(0, 1, 2))
 
     print("\n== Stage 4: fidelity check ==")
     build_report = out_path.with_suffix(".build_report.json")
@@ -56,8 +61,20 @@ def main():
 
     print("\n== Done ==")
     print("deck: " + str(out_path))
+
+    problems = []
     if fidelity_exit == 1:
-        print("Content-fidelity check FAILED -- see " + str(out_path.with_suffix(".fidelity_report.json")), file=sys.stderr)
+        problems.append("content-fidelity check FAILED -- see "
+                        + str(out_path.with_suffix(".fidelity_report.json")))
+    if render_exit == 2:
+        problems.append("Perceive Gate found geometry defects (overlap / off-slide) -- see "
+                        + str(out_path.with_suffix(".render_report.json")))
+    elif render_exit == 1:
+        problems.append("no visual render was produced -- visual checks were SKIPPED, "
+                        "which is reduced coverage, not a pass")
+    if problems:
+        for p in problems:
+            print("FAIL: " + p, file=sys.stderr)
         sys.exit(1)
 
 

@@ -23,11 +23,15 @@ HTML source in -> a real, editable `.pptx` out, checked against a named craft st
 a content-fidelity gate before it's handed back. Runs entirely from the scripts bundled in
 this folder -- no PowerPoint MCP, no macOS-only tools. First run ever? See `SETUP.md`.
 
+> **`$SKILL` = the directory this `SKILL.md` file sits in.** Substitute that path when you run
+> the commands below. Never use a remembered absolute path — this skill is installed to a
+> different location on every machine.
+
 ```bash
 "$SKILL/.venv/bin/python" "$SKILL/scripts/convert.py" <input.html>        # macOS/Linux
 ```
 ```powershell
-"$SKILL\.venv\Scripts\python.exe" "$SKILL\scripts\convert.py" <input.html>   # Windows
+& "$SKILL\.venv\Scripts\python.exe" "$SKILL\scripts\convert.py" <input.html>   # Windows
 ```
 
 `convert.py` alone runs the deterministic backbone (parse -> build -> render -> fidelity

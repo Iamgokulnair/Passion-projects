@@ -1,8 +1,0 @@
-{
-  "checked_at": null,
-  "platform": null,
-  "python_venv": null,
-  "playwright_chromium": null,
-  "libreoffice_path": null,
-  "note": "Capability cache written by scripts/setup.sh --check or setup.ps1 -Check. Not measured yet on this machine -- run setup to populate."
-}

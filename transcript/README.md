@@ -22,7 +22,7 @@ identical on every platform above — it's not tied to either ASR backend.
 |---|---|
 | Decode | ffmpeg → 16 kHz mono WAV. Any container ffmpeg reads |
 | Transcribe | `mlx-whisper` (Apple Silicon) or `faster-whisper` (everywhere else), turbo model, language auto-detected |
-| Diarize | `pyannote` on the CPU, in parallel with transcription — so speaker labels cost ~no extra time |
+| Diarize | `pyannote` on the CPU, launched in parallel with transcription. **Optional and currently unverified** — see Known limitations |
 | Merge | Each segment gets the speaker whose turns overlap it most. Pure interval maths |
 | Write | Six files, all verbatim ASR — no model ever rewrites the words |
 
@@ -33,13 +33,18 @@ turns as paragraphs), `.srt`/`.vtt` (subtitles), `.json` (structured segments), 
 ## Time benefit
 
 Measured on this tool's own reference machine (Apple M4, 16GB — see `config/engine.json`,
-reproducible via `scripts/calibrate.sh`): **13.36x realtime** on the `mlx-whisper` path.
+reproducible via `scripts/calibrate.sh`): **13.36x realtime** on the `mlx-whisper` path,
+**with speaker diarization switched off** (`--no-diarize`, as the benchmark runs it).
+
+That caveat matters: diarization runs concurrently but the pipeline blocks until it finishes,
+so with speaker labels enabled your real wall-clock is `max(ASR, diarization)` — and the
+diarization side of that has never been measured. The figures below are the ASR-only path.
 
 **Worked example** — a 30-minute meeting recording with no captions:
 
 | | Watching it yourself | `/transcript` (Apple Silicon) |
 |---|---|---|
-| Time spent | 30 minutes | **≈2 minutes 15 seconds** (1800s ÷ 13.36) |
+| Time spent | 30 minutes | **≈2 minutes 15 seconds** (1800s ÷ 13.36, no diarization) |
 | Time saved | — | **≈28 minutes, ~92% of the time back** |
 
 Add `/transcript-to-summary` (a near-instant Claude pass over the transcript) and the same
@@ -51,7 +56,8 @@ watching *and* manual note-taking afterward.
 - The 13.36x figure is specific to an Apple M4; other Apple Silicon chips will differ (repeated
   runs on this machine ranged 13–17x with thermal variance).
 - It excludes one-time model download and disk I/O.
-- Speaker diarization's own timing hasn't been separately verified end-to-end.
+- The benchmark runs with `--no-diarize`. With speaker labels on, expect wall-clock to be
+  `max(ASR, diarization)` — an unmeasured number, not "~free".
 - The `faster-whisper` (Windows/Intel Mac/Linux) path has **no equivalent number yet** — it will
   be slower than the Apple-Silicon path and varies by CPU. Don't extrapolate the 13.36x figure
   to it.
@@ -79,15 +85,17 @@ watching *and* manual note-taking afterward.
 4. **Symlink both skills into Claude Code** so `/transcript` and `/transcript-to-summary`
    become available:
    ```bash
-   # macOS / Linux
-   ln -s "$PWD/../transcript" ~/.claude/skills/transcript
-   ln -s "$PWD/../transcript-to-summary" ~/.claude/skills/transcript-to-summary
+   # macOS / Linux — run from the repo root; mkdir first, the dir may not exist yet
+   mkdir -p ~/.claude/skills
+   ln -s "$PWD/transcript" ~/.claude/skills/transcript
+   ln -s "$PWD/transcript-to-summary" ~/.claude/skills/transcript-to-summary
    ```
    ```powershell
    # Windows — needs admin or Developer Mode enabled; if that's not available,
    # just copy the two folders into %USERPROFILE%\.claude\skills\ instead
-   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\transcript" -Target "$PWD\..\transcript"
-   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\transcript-to-summary" -Target "$PWD\..\transcript-to-summary"
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills" | Out-Null
+   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\transcript" -Target "$PWD\transcript"
+   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\transcript-to-summary" -Target "$PWD\transcript-to-summary"
    ```
 5. **Optional — speaker labels**: create a free Hugging Face account, accept the gated
    diarization model's license, and set an `HF_TOKEN`. Full steps in [`SETUP.md`](SETUP.md).
@@ -127,7 +135,10 @@ downloaded as a ZIP rather than `git clone`d — run `Unblock-File .\scripts\set
 - GPU acceleration on Windows (CUDA/cuDNN) is not automated by `setup.ps1` — it runs CPU-only by
   default, which works but is slower. See `SETUP.md`'s troubleshooting table if you want to set
   up GPU acceleration manually.
-- Diarization has never been benchmarked separately from ASR on any platform — it's known to
-  work, its exact timing contribution isn't.
+- **Speaker diarization is implemented but unverified.** It has never been run end to end —
+  not benchmarked, and not confirmed working. The code path is complete and the setup steps
+  are documented, but no transcript produced by this tool has yet carried real speaker labels.
+  Treat it as untested until this line says otherwise. ASR (the transcript itself) is the
+  measured, proven path.
 
 Full setup detail and a troubleshooting table: [`SETUP.md`](SETUP.md).
