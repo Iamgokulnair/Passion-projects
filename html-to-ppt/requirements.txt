@@ -1,0 +1,16 @@
+# html-to-ppt — pinned direct dependencies.
+#
+# Pinned deliberately: scripts/build_pptx.py and scripts/verify_fidelity.py reach into
+# three private python-pptx internals (`_spTree`, `nvPicPr.cNvPr`), which an unpinned
+# minor bump can break silently — the deck still builds, it just comes out wrong.
+#
+# Verified working set, macOS/Apple Silicon, 2026-08-16.
+# To relax a pin, change it here and re-run `python3 tests/test_golden.py`.
+
+python-pptx==1.0.2
+beautifulsoup4==4.15.0
+playwright==1.62.0
+
+# Note: tinycss2 and Pillow were previously installed but never imported by any
+# script (verified by grep across scripts/*.py). Removed rather than shipping
+# dead install weight and a docs claim that did not match the code.

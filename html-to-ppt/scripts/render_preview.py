@@ -42,18 +42,37 @@ def find_libreoffice():
 
 
 def render_via_libreoffice(pptx_path: Path, out_dir: Path):
+    """Render the BUILT .pptx (not the source HTML) to PDF so it can be looked at.
+
+    Returns None on any failure, with `reason` distinguishing "no LibreOffice" from
+    "LibreOffice is present but failed" — reporting the latter as the former sends
+    the user down entirely the wrong troubleshooting path.
+    """
     soffice = find_libreoffice()
     if not soffice:
         return None
     out_dir.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(
-        [soffice, "--headless", "--convert-to", "pdf", "--outdir", str(out_dir), str(pptx_path)],
-        capture_output=True, text=True, timeout=120,
-    )
+    try:
+        result = subprocess.run(
+            [soffice, "--headless", "--convert-to", "pdf", "--outdir", str(out_dir), str(pptx_path)],
+            capture_output=True, text=True, timeout=300,
+        )
+    except subprocess.TimeoutExpired:
+        # A large deck with rasterized backgrounds can genuinely exceed the limit.
+        # Degrade to the next tier instead of dumping a traceback.
+        return {"tier": None, "failed": True,
+                "reason": "libreoffice timed out after 300s (large deck?)"}
+    except OSError as e:
+        return {"tier": None, "failed": True, "reason": f"libreoffice could not run: {e}"}
+
     pdf_path = out_dir / (pptx_path.stem + ".pdf")
     if result.returncode == 0 and pdf_path.exists():
         return {"tier": "libreoffice", "pdf": str(pdf_path), "stdout": result.stdout[-500:]}
-    return None
+    # Present but failed — commonly an already-running instance holding the profile lock.
+    return {"tier": None, "failed": True,
+            "reason": (f"libreoffice exited {result.returncode} without producing a PDF "
+                       f"(a running LibreOffice instance can lock the profile). "
+                       f"{(result.stderr or '').strip()[:200]}")}
 
 
 def render_via_com(pptx_path: Path, out_dir: Path):
@@ -129,33 +148,54 @@ def main():
     out_dir = args.out_dir or args.pptx.parent / (args.pptx.stem + "_render")
     report = {"pptx": str(args.pptx), "tier": None, "detail": None, "geometry_findings": None}
 
+    # Geometry runs ALWAYS, not only as a last resort. It costs milliseconds, and it is
+    # the only deterministic overlap/off-slide check in the pipeline — skipping it
+    # precisely when the good renderer works meant the primary path had no automated
+    # check at all, only "an LLM was handed a PDF".
+    findings = geometry_only_check(args.pptx)
+    report["geometry_findings"] = findings
+
+    render_failure = None
     lo = render_via_libreoffice(args.pptx, out_dir)
-    if lo:
+    if lo and lo.get("pdf"):
         report.update({"tier": "libreoffice", "detail": lo})
     else:
+        if lo and lo.get("failed"):
+            render_failure = lo.get("reason")
         com = render_via_com(args.pptx, out_dir)
         if com and com.get("pdf"):
             report.update({"tier": "powerpoint-com", "detail": com})
         else:
-            findings = geometry_only_check(args.pptx)
+            why = render_failure or "LibreOffice not found"
+            if com:
+                why += ", PowerPoint COM failed"
             report.update({
                 "tier": "geometry-only",
-                "detail": {"note": ("No renderer available (LibreOffice not found" +
-                                     (", PowerPoint COM failed" if com else "") +
-                                     "). Visual checks (#3 contrast, #9 chart integrity, "
-                                     "rasterized-gradient legibility) were SKIPPED -- this is "
-                                     "reduced coverage, not a clean bill of health.")},
-                "geometry_findings": findings,
+                "detail": {"note": (f"No visual render produced ({why}). Visual checks "
+                                     "(#3 contrast, #9 chart integrity, rasterized-gradient "
+                                     "legibility) were SKIPPED -- this is reduced coverage, "
+                                     "not a clean bill of health.")},
             })
 
     report_path = out_dir.parent / (args.pptx.stem + ".render_report.json")
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print("render tier used: " + str(report["tier"]))
     print("render report: " + str(report_path))
+
+    if report["geometry_findings"]:
+        print(f"{len(report['geometry_findings'])} geometry issue(s) found -- see report.",
+              file=sys.stderr)
     if report["tier"] == "geometry-only":
         print("WARNING: " + report["detail"]["note"], file=sys.stderr)
-        if report["geometry_findings"]:
-            print(str(len(report["geometry_findings"])) + " geometry issue(s) found -- see report.", file=sys.stderr)
+
+    # standards/deck.md: "If none of these produce a usable result, report which tool
+    # was missing and FAIL." Previously this exited 0 in every path, so the gate could
+    # never actually stop a bad deck. Geometry findings are a hard fail; no-renderer is
+    # exit 1 (degraded), which convert.py treats as non-fatal but visible.
+    if report["geometry_findings"]:
+        sys.exit(2)
+    if report["tier"] == "geometry-only":
+        sys.exit(1)
 
 
 if __name__ == "__main__":

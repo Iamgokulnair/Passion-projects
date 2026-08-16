@@ -29,11 +29,13 @@ allowed-tools:
 Paste a product. Get back what it has actually cost over the last year, and whether the
 offer in front of you is real.
 
+> **`$SKILL` = the directory this `SKILL.md` file sits in.** Substitute that path when you run
+> the command below. Never use a remembered absolute path — this skill is installed to a
+> different location on every machine.
+
 ```bash
 python3 "$SKILL/scripts/ph.py" "<amazon.in URL | flipkart URL | ASIN | product name>"
 ```
-
-Where `$SKILL` = `~/Documents/Claude/Personal/All my Skills/Research & Analysis/product-history`.
 
 **First run ever?** → `scripts/setup.sh` (macOS/Linux) or `scripts\setup.ps1` (Windows).
 There is nothing to install — it is a preflight check. See `SETUP.md`.

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Stage 4 -- content-fidelity round-trip check.
 
-Ground truth is the slide plan (whichever element_ids the agent's Step 1 reasoning, or
-the default heuristic planner, decided belong in the deck) -- NOT literally every DOM
-text node in the raw manifest. Deliberately excluding page chrome (nav bars, cookie
-banners, repeated boilerplate) is a legitimate Step-1 content-mapping decision, not data
-loss; this check verifies that whatever the plan DID include survived intact.
+SCOPE, STATED HONESTLY: this currently verifies that every string the builder *wrote*
+survived into the saved file. It does NOT yet read the slide plan or the manifest, so an
+element that the plan included but the builder never wrote is invisible to it, and an
+image that failed to download is bucketed as "no text expected" and passes.
+
+That makes this a persistence check, not a content-loss gate. Wave 2 makes it plan-driven
+(take --plan, diff manifest text against extracted slide text, and fail on placed=False);
+until then, do not read a PASS here as "nothing was lost from the page".
 
 Independently re-opens the saved .pptx (a fresh read, not reusing the builder's in-memory
 objects) and diffs extracted text against what build_pptx.py's content_index says it wrote,

@@ -1,5 +1,31 @@
 # Setup -- one time
 
+## Prerequisite: `uv`
+
+This skill's **one** external prerequisite is [`uv`](https://astral.sh/uv):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh     # macOS / Linux
+```
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"   # Windows
+```
+
+If `uv` is missing, `setup.sh` offers to install it, and falls back to `python3 -m venv` +
+`pip` if you decline (that path needs Python 3.10+ already installed). With `uv`, you don't
+need Python at all -- it fetches its own. Homebrew is not required.
+
+**Linux users:** after setup, Chromium also needs system libraries that pip cannot install:
+
+```bash
+sudo .venv/bin/python -m playwright install-deps chromium
+```
+
+`setup.sh` now actually launches Chromium to check, so it will tell you if this is needed
+rather than silently degrading to a much lossier parse later.
+
+## Run it
+
 **macOS / Linux:**
 
 ```bash
@@ -14,10 +40,9 @@ cd html-to-ppt
 .\scripts\setup.ps1
 ```
 
-Creates a self-contained `.venv` (Python 3.12) inside the skill. Installs `python-pptx`,
-`beautifulsoup4` + `tinycss2` (fallback parser), `Pillow`, and `playwright` (+ downloads a
-headless Chromium binary, ~150-300MB, one time). Nothing installed system-wide; Homebrew is
-not required. Idempotent -- safe to re-run.
+Creates a self-contained `.venv` inside the skill. Installs `python-pptx`, `beautifulsoup4`,
+and `playwright` (+ downloads a headless Chromium binary, ~150-300MB, one time -- the cache
+is ~1.1 GB once populated). Idempotent -- safe to re-run.
 
 If Windows blocks `setup.ps1` from running ("this file came from another computer"), the
 repo was downloaded as a ZIP rather than `git clone`d -- run

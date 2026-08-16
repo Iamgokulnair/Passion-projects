@@ -18,17 +18,19 @@ description: >-
 
 Any recording in → a faithful transcript out. Nothing leaves this machine.
 
+> **`$SKILL` = the directory this `SKILL.md` file sits in.** Substitute that path when you run
+> the commands below. Never use a remembered absolute path — this skill is installed to a
+> different location on every machine.
+
 ```bash
-"$SKILL/.venv/bin/python" "$SKILL/scripts/transcribe.py" <file-or-folder>       # macOS
+"$SKILL/.venv/bin/python" "$SKILL/scripts/transcribe.py" <file-or-folder>       # macOS/Linux
 ```
 ```powershell
-"$SKILL\.venv\Scripts\python.exe" "$SKILL\scripts\transcribe.py" <file-or-folder>   # Windows
+& "$SKILL\.venv\Scripts\python.exe" "$SKILL\scripts\transcribe.py" <file-or-folder>   # Windows
 ```
 
-Where `$SKILL` = `~/Documents/Claude/Personal/All my Skills/Video & Media Production/transcript`.
-
-**First run ever?** → `scripts/setup.sh` (macOS) or `scripts/setup.ps1` (Windows), then
-`scripts/calibrate.sh` (macOS only for now). See `SETUP.md`.
+**First run ever?** → `scripts/setup.sh` (macOS/Linux) or `scripts/setup.ps1` (Windows).
+See `SETUP.md`. Requires [`uv`](https://astral.sh/uv) — the setup script installs everything else.
 
 ---
 

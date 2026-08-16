@@ -24,9 +24,9 @@ pipeline runs and produces a real `.pptx` either way (see [Known limitations](#k
 | Parse | Playwright loads the HTML and reads *computed* CSS (resolved cascade, external stylesheets, custom properties) -- not just raw markup, which static parsers can't do |
 | Map | Content clustered into one-idea-per-slide units (Pyramid Principle + MECE), one of 5 layout archetypes per slide |
 | Build | `python-pptx` writes a real, editable `.pptx`. Gradients: native linear-fill where possible, rasterized background image for radial/conic/complex cases -- see [Gradient handling](#gradient-handling) |
-| Render | LibreOffice headless -> PDF (or Windows PowerPoint COM, or a geometry-only fallback with no visual render) -- actually looked at, not assumed clean |
-| Score | Every slide graded against a 12-component MBB-mechanics rubric in `standards/deck.md` |
-| Verify | The saved file is re-opened independently and every planned text element is diffed against what's actually in it -- catches silent drops or truncation |
+| Render | LibreOffice headless -> PDF (or Windows PowerPoint COM). A deterministic geometry check for overlap and off-slide shapes runs *always*, and fails the build when it finds any |
+| Score | The agent grades each slide against the 12-component MBB-mechanics rubric in `standards/deck.md`. This is a model judgement made from the rendered PDF, not a script |
+| Verify | The saved file is re-opened independently and every string the builder wrote is diffed against what's actually in it. **Persistence check, not a content-loss gate** -- see Known limitations |
 
 ## Gradient handling
 
@@ -83,12 +83,15 @@ report -- not the same thing as silent data loss, which this gate exists to catc
    into Cursor's own rules/skills location per its docs):
    ```bash
    # macOS / Linux
-   ln -s "$PWD/../html-to-ppt" ~/.claude/skills/html-to-ppt
+   # run from inside the html-to-ppt folder; mkdir first, the dir may not exist yet
+   mkdir -p ~/.claude/skills
+   ln -s "$PWD" ~/.claude/skills/html-to-ppt
    ```
    ```powershell
    # Windows -- needs admin or Developer Mode enabled; otherwise copy the folder into
    # %USERPROFILE%\.claude\skills\ instead
-   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\html-to-ppt" -Target "$PWD\..\html-to-ppt"
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills" | Out-Null
+   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills\html-to-ppt" -Target "$PWD"
    ```
 6. **Use it** -- inside a Claude Code or Cursor session:
    ```
@@ -101,14 +104,20 @@ first.
 
 ## Security notes
 
-- **No cloud API calls for the conversion itself.** Parsing, building, and rendering are
-  all local. The one exception is an `http(s)://` image `src` in the source HTML, which
-  `build_pptx.py` will fetch to embed -- `data:` URIs and local `file://` images never
-  touch the network.
+- **No cloud AI/API calls.** No model provider, no upload of your content, no telemetry --
+  parsing, building, and rendering all run locally.
+- **The page IS loaded in a real browser, with network access.** `parse_html.py` drives
+  headless Chromium and waits for `networkidle`, so whatever your HTML references --
+  remote CSS, webfonts, CDN scripts, iframes, analytics beacons -- will be fetched exactly
+  as a browser would fetch it. `build_pptx.py` additionally downloads any `http(s)://`
+  image `src` to embed it. `data:` URIs and local `file://` images never touch the network.
+  If you need a strictly offline conversion, disconnect first: the parse degrades to a
+  lossier BeautifulSoup-only path rather than failing.
 - **Review `setup.sh`/`setup.ps1` before running them** -- standard hygiene for any script
-  from a public repo. Both are plain `pip`/`uv` installs into a local virtual environment;
-  no `curl | bash`, no `sudo`, no admin rights required (except the optional Windows
-  symlink step, which has a copy-folder fallback).
+  from a public repo. They install into a local virtual environment and need no admin
+  rights, with two exceptions worth knowing: `setup.sh` offers to run the official `uv`
+  installer (`curl | sh`) if `uv` is missing -- decline and it falls back to `python3 -m
+  venv` -- and Linux needs a one-time `sudo playwright install-deps chromium`.
 - **Never commit `.venv`** -- covered by this folder's `.gitignore`.
 
 ## Known limitations
@@ -129,5 +138,36 @@ first.
 - **The Windows path is new and not yet run end-to-end on real Windows hardware by the
   author.** The macOS path is the proven one -- Windows ships as a genuine first release,
   not a fully field-tested equivalent.
+- **Linux needs one `sudo` step.** Chromium downloads via pip but will not launch without
+  system libraries: `sudo .venv/bin/python -m playwright install-deps chromium`. Setup
+  detects this by actually launching the browser rather than just checking the cache.
+
+### Content that is currently dropped or degraded
+
+Being specific, because "best-effort" is not a useful warning:
+
+| Construct | What happens |
+|---|---|
+| `<canvas>` charts (Chart.js, D3) | **Dropped.** No text content and not rasterized |
+| Inline `<svg>` | **Dropped.** `innerText` is undefined on SVG elements |
+| `opacity: 0` scroll-reveal sections | **Dropped** -- invisible at load, so never captured |
+| Nested-list parent text | **Dropped** -- `<li>Parent<ul>…</ul></li>` loses "Parent" |
+| A background on `<body>` itself | **Dropped** -- only descendants are scanned |
+| `<iframe>`, `<video>`, embedded maps | **Dropped** -- never queried |
+| Below-the-fold lazy images | Often the placeholder, not the real image |
+| `<strong>`, `<em>`, `<a>`, `<sup>` | **Flattened** to plain text; no bold/italic/hyperlink runs |
+| `h3`/`h4`/`h5` | **Flattened** to body text -- only `h1`/`h2` break slides |
+| Source text colour | **Ignored** -- body text is currently hardcoded dark |
+
+The last one has a real consequence: **a dark hero section will render dark-on-dark.** If
+your page has light text on a dark background, expect to fix those slides by hand until
+this is addressed.
+
+### The fidelity gate's real scope
+
+`verify_fidelity.py` confirms that every string the builder *wrote* persisted into the saved
+file. It does not read the slide plan or the manifest, so an element the plan included but
+the builder never wrote is invisible to it, and a failed image download passes. A `PASS`
+means "nothing was lost between building and saving" -- not "nothing was lost from the page".
 
 Full setup detail and a troubleshooting table: [`SETUP.md`](SETUP.md).

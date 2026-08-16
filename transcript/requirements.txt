@@ -1,0 +1,33 @@
+# transcript — pinned direct dependencies.
+#
+# The ASR backend is chosen by what is importable, so the two are listed with
+# environment markers rather than both being installed everywhere:
+#   * mlx-whisper    — Apple Silicon only (no wheels elsewhere); the fast, measured path
+#   * faster-whisper — everywhere else (Windows, Intel Mac, Linux)
+#
+# scripts/setup.sh installs the correct one for the detected chip. This file exists so a
+# known-good set can be reproduced exactly, and so `pip install -r requirements.txt`
+# works on the pip fallback path.
+#
+# Verified working set, macOS/Apple Silicon, 2026-08-16. The versions below are what the
+# measured 13.4x realtime figure in config/engine.json was produced with.
+
+imageio-ffmpeg==0.6.0
+numpy==2.4.6
+
+# ASR backends — install exactly one, matching your machine.
+mlx-whisper==0.4.3 ; sys_platform == "darwin" and platform_machine == "arm64"
+faster-whisper>=1.0 ; not (sys_platform == "darwin" and platform_machine == "arm64")
+
+# Speaker diarization (optional — needs a HuggingFace token and gated-model access;
+# see SETUP.md). pyannote 4.x changed the auth kwarg from use_auth_token to token,
+# which scripts/diarize.py sniffs for at runtime, so both majors work.
+pyannote.audio==4.0.7
+
+# torch/torchaudio come in via pyannote.audio; pinned because pyannote loads the wav
+# through torchaudio and backend availability shifts between minor versions.
+torch==2.13.0
+torchaudio==2.11.0
+
+# Non-Apple-Silicon platforms need an explicit soundfile backend for torchaudio.
+soundfile>=0.12 ; not (sys_platform == "darwin" and platform_machine == "arm64")

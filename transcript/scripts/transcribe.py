@@ -42,6 +42,17 @@ MEDIA_EXT = {
 }
 
 
+class MediaError(Exception):
+    """A failure affecting ONE file — a corrupt container, a video with no audio
+    stream, an ffmpeg decode error.
+
+    Deliberately an Exception, not SystemExit: the batch loop catches Exception so
+    that one unreadable file is reported and skipped instead of killing a folder
+    run half-way through. Reserve SystemExit for conditions that make the WHOLE
+    run impossible (no ffmpeg, no ASR backend, bad arguments).
+    """
+
+
 # ---------------------------------------------------------------- utilities
 
 def log(msg):
@@ -147,7 +158,11 @@ def extract_audio(src, dst, ffmpeg):
     ]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0 or not dst.exists():
-        raise SystemExit(f"ffmpeg failed on {src.name}:\n{r.stderr.strip()[:2000]}")
+        # MediaError, not SystemExit: this is a per-FILE failure. SystemExit derives
+        # from BaseException, so the batch loop's `except Exception` could not catch
+        # it and a single corrupt file (or a video with no audio stream) aborted the
+        # entire folder run part-way through.
+        raise MediaError(f"ffmpeg failed on {src.name}:\n{r.stderr.strip()[:2000]}")
     return dst
 
 
@@ -163,7 +178,12 @@ def start_diarization(wav, out_json, serial=False):
     )
     log(f"[cpu lane] diarization started (pid {proc.pid})")
     if serial:
-        proc.wait()
+        # communicate(), never wait(): nothing drains the pipe while the child runs,
+        # and pyannote's first-run weight-download progress easily exceeds the ~64KB
+        # OS pipe buffer — at which point the child blocks writing and the parent
+        # blocks in wait() forever. communicate() reads and waits together.
+        out, _ = proc.communicate()
+        proc._captured_output = out  # consumed by the failure path in transcribe_one
     return proc
 
 
@@ -274,20 +294,20 @@ def attach_speakers(segments, turns):
 
 def write_txt(segs, path):
     """[HH:MM:SS] text -- byte-format-identical to the prior LSSBB output."""
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for s in segs:
             f.write(f"[{hhmmss(s['start'])}] {s['text'].strip()}\n")
 
 
 def write_srt(segs, path):
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for i, s in enumerate(segs, 1):
             spk = f"[{s['speaker']}] " if s.get("speaker") else ""
             f.write(f"{i}\n{ts_srt(s['start'])} --> {ts_srt(s['end'])}\n{spk}{s['text'].strip()}\n\n")
 
 
 def write_vtt(segs, path):
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("WEBVTT\n\n")
         for s in segs:
             spk = f"[{s['speaker']}] " if s.get("speaker") else ""
@@ -307,7 +327,7 @@ def write_json(segs, path, name, duration, language):
             for s in segs
         ],
     }
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=1, ensure_ascii=False)
 
 
@@ -323,7 +343,7 @@ def write_md(segs, path, name, duration, language):
     MD_MAX_PARA_SEC of accumulated speech. The last two matter most when there are no
     speaker labels, which would otherwise yield one unreadable wall of text.
     """
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(f"# {name}\n\n")
         f.write(f"*{hhmmss(duration)} · language: {language or 'auto'}*\n\n---\n\n")
 
@@ -389,7 +409,11 @@ def transcribe_one(src, outdir, args, ffmpeg, backend):
 
         turns = []
         if dia is not None:
-            out, _ = dia.communicate()
+            # In --serial mode start_diarization already drained the pipe; calling
+            # communicate() a second time on a finished process would raise.
+            out = getattr(dia, "_captured_output", None)
+            if out is None:
+                out, _ = dia.communicate()
             if dia.returncode == 0 and dia_json.exists():
                 turns = json.loads(dia_json.read_text())
                 spk = sorted({t_["speaker"] for t_ in turns})
@@ -427,7 +451,9 @@ def transcribe_one(src, outdir, args, ffmpeg, backend):
         "generated": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "tool": f"transcript skill (local, {backend}-whisper)",
     }
-    (outdir / f"{name}.manifest.json").write_text(json.dumps(manifest, indent=2))
+    (outdir / f"{name}.manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
 
     log(f"TOTAL {wall/60:.1f} min for {hhmmss(duration)} "
         f"({duration/wall:.1f}x realtime) -> {outdir}")
