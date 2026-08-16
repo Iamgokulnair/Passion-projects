@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "updated": "2026-08-15",
+
+  "fetch": {
+    "reader": "https://r.jina.ai/",
+    "_comment_reader": "agent-reach 'web' channel. The x-timeout header is REQUIRED: without it the reader returns the pre-hydration page shell and every price field comes back empty. Validated 2026-08-15.",
+    "headers": { "x-timeout": "25" },
+    "timeout_seconds": 45,
+    "retries": 2,
+    "backoff_seconds": 3,
+    "parallel_workers": 4,
+    "stale_after_hours": 72
+  },
+
+  "sources": [
+    {
+      "id": "pricehistory_app",
+      "domain": "pricehistory.app",
+      "url_template": "https://pricehistory.app/p/{slug}",
+      "keyed_by": "slug",
+      "weight": 1.0,
+      "richest": true,
+      "notes": "Best source: labelled Lowest/Average/Highest, MRP, and dated drop events. 403s to plain fetch, fine through the reader."
+    },
+    {
+      "id": "pricediff_in",
+      "domain": "pricediff.in",
+      "url_template": "https://pricediff.in/product/{asin}-{slug}",
+      "keyed_by": "asin",
+      "weight": 1.0,
+      "notes": "ASIN-keyed URLs, so an Amazon link resolves directly. Publishes its own above/below-average call, useful as a cross-check."
+    },
+    {
+      "id": "pricehistoryapp_com",
+      "domain": "pricehistoryapp.com",
+      "url_template": "https://pricehistoryapp.com/product/{slug}",
+      "keyed_by": "slug",
+      "weight": 1.0,
+      "notes": "Gives all-time low/high plus a 30-day average, and renders current+MRP adjacently."
+    },
+    {
+      "id": "producthistory_in",
+      "domain": "producthistory.in",
+      "url_template": "https://producthistory.in/product/{store}-{slug}",
+      "keyed_by": "slug",
+      "weight": 0.8,
+      "notes": "Thinner. Stats render only after hydration; weight reduced because it often reports a flat band."
+    }
+  ],
+
+  "confidence": {
+    "high":   { "min_sources": 3, "max_spread_pct": 5 },
+    "medium": { "min_sources": 2, "max_spread_pct": 15 },
+    "_else":  "low",
+    "low_withholds_verdict": true
+  },
+
+  "verdict": {
+    "buy_max_percentile": 25,
+    "buy_within_pct_of_low": 5,
+    "fair_max_percentile": 60,
+    "trap_downgrades_one_band": true
+  },
+
+  "dark_patterns": {
+    "fictitious_mrp_anchor": {
+      "ccpa_pattern": "Bait and switch",
+      "trigger": "pct_off_mrp - pct_off_median > 25",
+      "threshold_pp": 25
+    },
+    "fake_sale": {
+      "ccpa_pattern": "False urgency",
+      "trigger": "advertised sale price >= the observed median price"
+    },
+    "pre_sale_hike": {
+      "ccpa_pattern": "False urgency",
+      "trigger": "price rose > 5% within 30 days before the sale",
+      "threshold_pct": 5,
+      "window_days": 30
+    },
+    "never_was_price": {
+      "ccpa_pattern": "Bait and switch",
+      "trigger": "claimed MRP never observed at or above in any source history or the ledger"
+    },
+    "recycled_discount": {
+      "ccpa_pattern": "False urgency",
+      "trigger": "the same drop price recurs >= 3 times in 12 months",
+      "min_occurrences": 3
+    },
+    "drip_pricing": {
+      "ccpa_pattern": "Drip pricing",
+      "trigger": "NOT DETECTABLE pre-checkout",
+      "reported_as": "unverifiable"
+    }
+  },
+
+  "legal_basis": {
+    "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023",
+    "authority": "Central Consumer Protection Authority (CCPA), India",
+    "statute": "Consumer Protection Act, 2019 — Section 18",
+    "notified": "2023-11-30",
+    "pattern_count": 13
+  },
+
+  "scope": {
+    "marketplaces": ["amazon.in", "flipkart.com"],
+    "partial": ["myntra.com", "ajio.com", "croma.com"],
+    "out_of_scope_reason": "Variant-heavy fashion SKUs have unstable identity across trackers; Croma/Reliance Digital are thinly covered by all four sources."
+  }
+}
