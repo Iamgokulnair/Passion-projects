@@ -1,7 +1,9 @@
 # Passion-projects
 
-Personal projects, not related to work — just curiosity ones. Three plug-and-play
-Claude Code / Cursor skills live here, each self-contained in its own folder.
+Personal projects built in my own time, not related to my employer or my day job - just
+curiosity ones. Three plug-and-play Claude Code / Cursor skills live here, each
+self-contained in its own folder, plus the prompt packs that rebuild them and an open case
+study on AI adoption.
 
 Clone the repo, run one setup script per skill you want, and go:
 
@@ -55,6 +57,20 @@ python3 scripts/ph.py "https://www.amazon.in/dp/B0CQKS8NPQ"
 ```
 
 Full detail: [`product-history/README.md`](product-history/README.md).
+
+## [`prompt-packs/`](prompt-packs/)
+
+The build conversations behind each skill, reverse-engineered into ordered prompts with a
+check after every step, so anyone can rebuild them in Claude Code without writing code by
+hand. Also includes a colleague starter pack: role-based prompts, a one-page safe-use
+guide and a "ready to send?" job aid for teams new to an AI assistant.
+
+## [`case-studies/`](case-studies/)
+
+[`copilot-adoption-partners-framework.md`](case-studies/copilot-adoption-partners-framework.md) -
+a self-authored framework for rolling out Copilot to internal teams through a volunteer
+Adoption Partners network: role charters, cohorts, a ship-publish-respond loop and
+honest measurement, mapped to ADKAR.
 
 ## Using any of these from Claude Code
 
